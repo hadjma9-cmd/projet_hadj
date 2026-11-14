@@ -638,7 +638,7 @@ function renderCoach() {
   const chat = document.getElementById('chat'); if (chat && !empty) setTimeout(() => window.scrollTo(0, document.body.scrollHeight), 0);
 }
 function coachSetupHtml() {
-  return `<div class="banner"><b>Coach à activer.</b> Sur ce site, le coach utilise ta clé Claude (moins d’un centime par question). Une fois la clé ajoutée dans Netlify, entre ton code dans <b>Suivi → Réglages</b>.<br><br>En attendant, il marche déjà gratuitement dans la version Claude de l’app : <a href="${DATA.artifact}#coach">ouvrir le coach dans Claude</a>.</div>`;
+  return `<div class="banner"><b>Coach à activer.</b> Sur ce site, le coach utilise ta clé Claude (moins d’un centime par question). Une fois la clé ajoutée dans Netlify, entre ton code dans <b>Suivi → Réglages</b>.</div>`;
 }
 async function askCoach(text) {
   if (coachBusy || !text.trim()) return;
