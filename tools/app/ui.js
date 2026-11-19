@@ -1,129 +1,130 @@
-/* ---------------- icônes et éléments communs ---------------- */
+/* ---------------- icônes ---------------- */
 const I = {
-  gear: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
-  play: '<svg viewBox="0 0 24 24"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.4-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>',
-  check: '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
-  close: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
-  chev: '<svg class="chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>',
-  left: '<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>',
-  right: '<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>',
-  send: '<svg viewBox="0 0 24 24"><path d="M3.4 20.4 21 12 3.4 3.6 3.4 10l12.6 2-12.6 2z"/></svg>',
+  check: '<svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg>',
+  chev: '<svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>',
+  play: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path class="fill" d="M10 8.6v6.8l5.6-3.4z"/></svg>',
+  ok: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.4l2.8 2.8 5.4-5.6"/></svg>',
+  no: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="M9 9l6 6M15 9l-6 6"/></svg>',
+  swap: '<svg viewBox="0 0 24 24"><path d="M5 9h13l-3.5-3.5M19 15H6l3.5 3.5"/></svg>',
+  warm: '<svg viewBox="0 0 24 24"><path d="M12 3.5c.6 2.8 4.5 4.6 4.5 9a4.5 4.5 0 0 1-9 0c0-1.9.9-3.3 2-4.2.1 1.4.8 2.3 1.8 2.7-.2-2.6-.3-5 .7-7.5z"/></svg>',
+  ball: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5l3.6 2.6-1.4 4.2H9.8l-1.4-4.2z"/><path d="M12 3v4.5M15.6 10.1l4.6-1.5M14.2 14.3l2.8 4M9.8 14.3 7 18.3M8.4 10.1 3.8 8.6"/></svg>',
+  send: '<svg viewBox="0 0 24 24"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg>',
+  cart: '<svg viewBox="0 0 24 24"><path d="M3 4.5h2.2l2.1 10.2h10.2l2-7.2H6.6"/><circle cx="9.3" cy="19" r="1.4"/><circle cx="16.4" cy="19" r="1.4"/></svg>',
 };
-const tick = '<svg viewBox="0 0 14 14"><path d="M2.5 7.5l3 3 6-7"/></svg>';
-const muscleText = arr => (arr || []).map(k => DATA.muscles[k]).join(', ');
-function artHtml(e) {
-  if (e.dia) return `<figure class="diafig">${e.dia}</figure>`;
-  return `<div class="art"><figure class="pose">${e.a}<figcaption>${esc(e.ca)}</figcaption></figure><figure class="pose">${e.b}<figcaption>${esc(e.cb)}</figcaption></figure></div>`;
-}
-const thumbHtml = e => `<div class="thumb">${e.dia ? e.dia : e.b}</div>`;
-function prescText(p) {
-  const reps = repsFor(p.sl, p.slug, p.pr);
-  const s = p.pr.sets > 1 ? `${p.pr.sets}&nbsp;×&nbsp;${esc(reps)}` : esc(reps);
-  return s + (p.pr.rest ? ` · repos ${restTxt(p.pr.rest)}` : '');
-}
-function guideHtml(e) {
-  return `<div class="guide"><div class="gb"><b>Exécution</b><p>${esc(e.how)}</p></div>
-    <div class="gb ok"><b>Conseil</b><p>${esc(e.tip || '')}</p></div>
-    <div class="gb no"><b>À éviter</b><p>${esc(e.err)}</p></div>
-    ${e.prim && e.prim.length ? `<p class="mus-l">Muscles : ${esc(muscleText(e.prim))}</p>` : ''}</div>`;
-}
-function exCard(p) {
-  const e = EXD[p.slug];
-  return `<button type="button" class="exc" data-exd="${p.sl.id}">${thumbHtml(e)}<div class="grow"><h3>${esc(e.name)}</h3><p>${prescText(p)}</p></div>${I.chev}</button>`;
-}
-let toastT = null;
-function toast(t) {
-  const el = document.getElementById('toast');
-  el.innerHTML = `<span>${esc(t)}</span>`;
-  el.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), 2400);
-}
+const LETTRES = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+const nomJour = k => JOURS[KEYS.indexOf(k)];
+let selDay = todayKey(), openId = null, shopOpen = false;
 
-/* ---------------- une journée (accueil et programme) ---------------- */
-let progDay = null, sunMode = {};
-function sunOf(k, wk) { return k !== 'dimanche' ? null : (sunMode[wk] || (isMatchWeek(wk) ? 'match' : 'tech')); }
-function dayBody(dk, isToday) {
-  const day = dayByKey(dk), mode = sunOf(dk, weekKey()), v = dayView(day, mode), info = weekInfo();
-  let h = '';
-  if (dk === 'dimanche') h += `<div class="seg mt12" role="group" aria-label="Dimanche"><button type="button" data-sun="match" aria-pressed="${mode === 'match'}">J’ai match</button><button type="button" data-sun="tech" aria-pressed="${mode === 'tech'}">Pas de match</button></div>`;
-  const done = isToday && doneOn(TODAY());
-  const btn = (lab, act) => done ? `<div class="donebar">${I.check}<span>C’est fait pour aujourd’hui. Bravo !</span></div>`
-    : `<button type="button" class="btn white" data-act="${act}" data-day="${dk}">${act === 'start' ? I.play : ''}${esc(lab)}</button>`;
-  h += `<section class="hero c-${v.col} mt12"><div class="kick">${isToday ? 'Aujourd’hui · ' : ''}${JOURS[KEYS.indexOf(dk)]}${v.dur ? ' · ' + esc(v.dur) : ''}</div><h2>${esc(v.name)}</h2><div class="theme">${esc(v.theme || '')}</div>`;
-  if (v.kind === 'gym' || v.kind === 'speed' || v.kind === 'tech') {
-    h += `<div style="height:16px"></div>${btn('Commencer', 'start')}</section>`;
-    if (day.note) h += `<p class="note">${esc(day.note)}</p>`;
-    if (v.place) h += `<p class="note">Matériel : ${esc(v.place)}</p>`;
-    h += `<div class="exl">${planFor(day, mode, info).map(exCard).join('')}</div>`;
-  } else if (v.kind === 'foot') {
-    h += `<p class="theme mt12">${esc(day.text)}</p><div style="height:16px"></div>${btn('C’est fait', 'done')}</section>`;
-  } else if (v.kind === 'recup') {
-    h += `<div style="height:16px"></div>${btn('C’est fait', 'done')}</section>`;
-    h += `<div class="exl">${day.items.map(it => it.ex ? `<button type="button" class="exc" data-exr="${it.ex}">${thumbHtml(EXD[it.ex])}<div class="grow"><h3>${esc(it.txt)}</h3><p>${esc(EXD[it.ex].tip || '')}</p></div>${I.chev}</button>`
-      : `<div class="exc static"><div class="grow"><h3>${esc(it.txt)}</h3><ul>${(it.list || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul></div></div>`).join('')}</div>`;
-  } else if (v.kind === 'match') {
-    h += `<div style="height:16px"></div>${btn('Match joué', 'done')}</section>`;
-    h += `<div class="exl"><div class="exc static"><div class="grow"><h3>Avant le match</h3><ul>${day.match.before.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div></div>
-      <div class="exc static"><div class="grow"><h3>Échauffement</h3><ul>${DATA.warmup.match.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div></div>
-      <div class="exc static"><div class="grow"><h3>Après le match</h3><ul>${day.match.after.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div></div></div>`;
+function prescText(sl, slug, pr) {
+  const reps = repsFor(sl, slug, pr);
+  const s = pr.sets > 1 ? `${pr.sets}&nbsp;×&nbsp;${esc(reps)}` : esc(reps);
+  return s + (pr.rest ? ` · repos ${restTxt(pr.rest)}` : '');
+}
+function weekStrip() {
+  return `<nav class="week" aria-label="Jours de la semaine">${ORDER.map((k, i) => {
+    const d = dateOf(k), sel = k === selDay;
+    return `<button type="button" class="wd${sel ? ' sel' : ''}${d === TODAY() ? ' today' : ''}${dayDone(k) ? ' done' : ''}" data-day="${k}" aria-pressed="${sel}" aria-label="${nomJour(k)} ${fmtDate(d)}${dayDone(k) ? ', fait' : ''}"><small>${LETTRES[i]}</small><b>${D(d).getDate()}</b><i>${I.check}</i></button>`;
+  }).join('')}</nav>`;
+}
+function overline(k) { const d = dateOf(k); return d === TODAY() ? 'Aujourd’hui' : `${nomJour(k)} ${fmtDate(d)}`; }
+
+/* ---------------- une ligne de la liste ---------------- */
+function rowHtml(k, r) {
+  const d = dateOf(k), open = openId === r.id;
+  const lead = r.check === false ? `<span class="lead">${r.icon || ''}</span>`
+    : `<button type="button" class="ck" data-ck="${r.id}" aria-pressed="${checked(d, r.id)}" aria-label="${esc(r.name)} : fait">${I.check}</button>`;
+  const body = `<span class="nm">${esc(r.name)}</span>${r.sub ? `<span class="sb">${r.sub}</span>` : ''}`;
+  return `<li class="row${r.check !== false && checked(d, r.id) ? ' on' : ''}${open ? ' open' : ''}">${lead}`
+    + (r.detail ? `<button type="button" class="rt" data-open="${r.id}" aria-expanded="${open}">${body}${I.chev}</button>` : `<div class="rt">${body}</div>`)
+    + (open && r.detail ? `<div class="det">${r.detail()}</div>` : '') + '</li>';
+}
+function ytUrl(sl, e) {
+  const q = e.name.replace(/\s*\(.*\)/, '') + (['plyo', 'sprint', 'cod', 'ball'].includes(sl.kind) ? ' exercice football' : ' musculation');
+  return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q);
+}
+function exDetail(k, sl, slug, pr) {
+  const e = EXD[slug], d = dateOf(k), opts = slotOptions(sl);
+  let h = figHtml(slug);
+  if (e.steps && e.steps.length) h += `<ol class="steps">${e.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol>`;
+  if (e.tip) h += `<p class="tip ok">${I.ok}<span>${esc(e.tip)}</span></p>`;
+  if (e.err) h += `<p class="tip no">${I.no}<span>${esc(e.err)}</span></p>`;
+  if (modeOf(sl, slug, repsFor(sl, slug, pr)) === 'load') {
+    const cur = histOn(slug, d), last = lastBefore(slug, d);
+    const hint = last != null ? `La dernière fois : ${frn(last)}&nbsp;kg` : e.start ? `Pour commencer : ${esc(e.start)}` : '';
+    h += `<div class="wt"><label for="w-${sl.id}">${e.neg ? 'Contrepoids' : 'Poids'}</label><input id="w-${sl.id}" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" data-w="${slug}" value="${cur != null ? frn(cur) : ''}" placeholder="–"><span>kg</span>${hint ? `<small>${hint}</small>` : ''}</div>`;
   }
-  return h;
+  h += '<div class="links">';
+  if (e.eq !== 'velo') h += `<a class="lnk" href="${ytUrl(sl, e)}" target="_blank" rel="noopener">${I.play}<span>Voir en vidéo</span></a>`;
+  opts.forEach((o, i) => { if (o !== slug) h += `<button type="button" class="lnk" data-alt="${sl.id}" data-i="${i}">${I.swap}<span>${o === sl.ex ? 'Revenir à' : 'Pris ? Fais plutôt'} : ${esc(EXD[o].name)}</span></button>`; });
+  return h + '</div>';
+}
+function listHtml(k, rows) { return `<ul class="list">${rows.map(r => rowHtml(k, r)).join('')}</ul>`; }
+function warmRow(key, extra) {
+  return { id: 'w-' + key, check: false, icon: I.warm, name: 'Échauffement', sub: '8 à 10&nbsp;min',
+    detail: () => `<ul class="plain">${DATA.warmup[key].concat(extra || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>` };
+}
+function slotRows(k, slots, info) {
+  return slots.map(sl => ({ sl, slug: slotSlug(sl), pr: presc(sl, info) })).filter(p => p.pr).map(p => ({
+    id: p.sl.id, name: EXD[p.slug].name, sub: prescText(p.sl, p.slug, p.pr), detail: () => exDetail(k, p.sl, p.slug, p.pr) }));
 }
 
-/* ---------------- AUJOURD’HUI ---------------- */
-function renderAccueil() {
-  const dk = todayKey(), info = weekInfo(), now = new Date();
-  const wk = ORDER.map((k, i) => {
-    const d = addDays(weekKey(), i), v = dayView(dayByKey(k), sunOf(k, weekKey())), done = doneOn(d);
-    return `<button type="button" class="wd c-${v.col}${done ? ' on' : ''}${d === TODAY() ? ' today' : ''}" data-go="programme" data-day="${k}"><small>${JOURS[(i + 1) % 7].slice(0, 3).toUpperCase()}</small><i>${done ? I.check : D(d).getDate()}</i><span>${esc(v.tag)}</span></button>`;
-  }).join('');
-  view.innerHTML = `
-    <div class="hello"><div class="avatar">10</div><div class="grow"><h1>${S.name ? 'Salut ' + esc(S.name) : 'Salut'}</h1><p>${JOURS[now.getDay()]} ${fmtDate(TODAY())}${info.before ? '' : ' · semaine ' + info.w + ' sur 12'}</p></div><button type="button" class="ico-btn" data-sheet="settings" aria-label="Réglages">${I.gear}</button></div>
-    ${dayBody(dk, true)}
-    <div class="sec-t"><h2>Ma semaine</h2></div>
-    <div class="week">${wk}</div>`;
-}
-
-/* ---------------- PROGRAMME ---------------- */
-function renderProgramme() {
-  const dk = progDay || todayKey();
-  const chips = ORDER.map(k => { const v = dayView(dayByKey(k), sunOf(k, weekKey())); return `<button type="button" class="chip c-${v.col}" data-day="${k}" aria-pressed="${k === dk}"><b>${JOURS[KEYS.indexOf(k)].slice(0, 3)}</b><span>${esc(v.tag)}</span></button>`; }).join('');
-  view.innerHTML = `<div class="page-h"><h1>Programme</h1></div>
-    <div class="chips dchips">${chips}</div>
-    ${dayBody(dk, dk === todayKey())}
-    <section class="card mt16"><h3 class="ct-h">Pour progresser</h3>
-      <ul class="rules-l"><li>Tu réussis toutes les séries facilement ? Prends un peu plus lourd la fois suivante.</li>
-      <li>Garde toujours 1 ou 2 répétitions en réserve : jamais jusqu’à l’échec.</li>
-      <li>Une douleur dans une articulation : arrête l’exercice.</li></ul></section>`;
+/* ---------------- SÉANCE ---------------- */
+function renderSeance() {
+  const k = selDay, day = dayByKey(k), info = weekInfo(), d = dateOf(k);
+  let title = day.name, sub = [day.theme, day.dur].filter(Boolean).join(' · '), notes = [], body = '';
+  if (day.kind === 'gym' || day.kind === 'speed') {
+    if (info.learn && day.kind === 'gym') notes.push('Semaines 1 et 2 : 2 séries seulement, le temps d’apprendre les gestes.');
+    if (info.deload) notes.push('Semaine plus légère : une série de moins partout.');
+    if (day.note) notes.push(day.note);
+    if (day.place) notes.push('Matériel : ' + day.place.charAt(0).toLowerCase() + day.place.slice(1) + '.');
+    body = listHtml(k, [warmRow(day.warm)].concat(slotRows(k, day.slots, info)));
+    if (day.kind === 'gym') body += '<p class="foot">Toutes tes répétitions passent facilement ? Ajoute un peu de poids la fois suivante. Garde toujours 1 ou 2 répétitions en réserve.</p>';
+  } else if (day.kind === 'foot') {
+    body = listHtml(k, [{ id: 'f1', name: 'Entraînement avec l’équipe', sub: esc(day.text) }]);
+  } else if (day.kind === 'recup') {
+    body = listHtml(k, day.items.map(it => it.ex
+      ? { id: it.id, name: it.txt, sub: esc(EXD[it.ex].tip || ''), detail: () => exDetail(k, { id: it.id, ex: it.ex, alts: [], kind: 'recup' }, it.ex, { sets: 1, reps: '20 min', rest: 0 }) }
+      : { id: it.id, name: it.txt, sub: 'Tiens chaque position sans forcer', detail: () => `<ul class="plain">${it.list.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` }));
+  } else if (day.kind === 'sunday') {
+    const m = day.match, t = day.tech;
+    title = 'Match ou technique'; sub = '';
+    body = `<h2 class="sec">Si tu as match</h2>` + listHtml(k, [{ id: 'm1', name: 'Match', sub: 'Avant, échauffement, après',
+      detail: () => `<h4>Avant</h4><ul class="plain">${m.before.map(x => `<li>${esc(x)}</li>`).join('')}</ul><h4>Échauffement</h4><ul class="plain">${DATA.warmup.match.map(x => `<li>${esc(x)}</li>`).join('')}</ul><h4>Après</h4><ul class="plain">${m.after.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` }])
+      + `<h2 class="sec">Sinon : technique <small>${esc(t.dur)}</small></h2>`
+      + (t.place ? `<p class="note">Matériel : ${esc(t.place.charAt(0).toLowerCase() + t.place.slice(1))}.</p>` : '')
+      + listHtml(k, [warmRow(t.warm)].concat(slotRows(k, t.slots, info)));
+  }
+  const done = dayDone(k);
+  view.innerHTML = `${weekStrip()}
+    <header class="head"><p class="over">${overline(k)}</p><h1>${esc(title)}</h1>${sub ? `<p class="sub">${sub}</p>` : ''}</header>
+    ${done ? `<p class="fin">${I.check}<span>${day.kind === 'foot' ? 'Entraînement fait.' : day.kind === 'recup' ? 'Récup faite.' : k === 'dimanche' && checked(d, 'm1') ? 'Match joué.' : 'Séance terminée.'} Bien joué&nbsp;!</span></p>` : ''}
+    ${notes.map(n => `<p class="note">${esc(n)}</p>`).join('')}
+    ${body}`;
+  playFig();
 }
 
 /* ---------------- REPAS ---------------- */
-let mealDay = JOURS[new Date().getDay()], mealTab = 'menus';
-const MEAL_DAYS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
 function qtyLabel(f, q) {
   const x = F(f);
-  if (x.per === 'g') return `<b>${q} g</b> ${esc(x.n)}`;
-  if (x.unit) return `<b>${q} ${esc(x.unit)}${q > 1 && !/\./.test(x.unit) ? 's' : ''}</b> ${esc(x.n)}`;
-  return `<b>${q}</b> ${esc(q > 1 && x.pl ? x.pl : x.n)}`;
+  const n = s => esc(s.replace(' (poids cru)', ''));
+  if (x.per === 'g') return `<b>${q}&nbsp;g</b> ${n(x.n)}`;
+  if (x.unit) return `<b>${q} ${esc(x.unit)}${q > 1 && !/\./.test(x.unit) ? 's' : ''}</b> ${n(x.n)}`;
+  return `<b>${q}</b> ${n(q > 1 && x.pl ? x.pl : x.n)}`;
 }
 function renderRepas() {
-  const chips = MEAL_DAYS.map(dn => `<button type="button" class="chip" data-mday="${dn}" aria-pressed="${dn === mealDay}"><b>${dn.slice(0, 3)}</b></button>`).join('');
-  let content;
-  if (mealTab === 'menus') {
-    const r = mealsFor(mealDay);
-    content = `<div class="chips mt12">${chips}</div>
-      ${r.meals.map(m => `<article class="meal"><h3>${esc(m.name)}</h3>${m.title ? `<p class="dish">${esc(m.title)}</p>` : ''}<ul class="foods">${Object.keys(m.items).map(f => `<li>${qtyLabel(f, m.items[f])}</li>`).join('')}</ul></article>`).join('')}
-      ${mealDay === 'Samedi' || mealDay === 'Dimanche' ? '<p class="note">Match le lendemain : ajoute 40 g de pâtes au dîner. Jour de match : repas 3 h avant.</p>' : ''}
-      <p class="note">Poulet, pâtes et riz pesés crus. Une seule whey par jour.</p>`;
-  } else content = coursesHtml();
-  view.innerHTML = `<div class="page-h"><h1>Repas</h1></div>
-    <div class="seg" role="group" aria-label="Menus ou courses"><button type="button" data-mtab="menus" aria-pressed="${mealTab === 'menus'}">Menus</button><button type="button" data-mtab="courses" aria-pressed="${mealTab === 'courses'}">Courses</button></div>
-    ${content}`;
+  const dn = nomJour(selDay), r = mealsFor(dn);
+  view.innerHTML = `${weekStrip()}
+    <header class="head"><p class="over">${overline(selDay)}</p><h1>Repas</h1><p class="sub">Environ ${fr0(r.md.target)}&nbsp;kcal</p></header>
+    ${r.meals.map(m => `<section class="meal"><h2>${esc(m.name)}</h2>${m.title ? `<p class="dish">${esc(m.title)}</p>` : ''}<ul>${Object.keys(m.items).map(f => `<li>${qtyLabel(f, m.items[f])}</li>`).join('')}</ul></section>`).join('')}
+    ${dn === 'Samedi' || dn === 'Dimanche' ? '<p class="note">Match le lendemain : ajoute 40&nbsp;g de pâtes au dîner. Jour de match : repas 3&nbsp;h avant.</p>' : ''}
+    <p class="note">Poulet, pâtes et riz pesés crus. Une seule whey par jour.</p>
+    <ul class="list mt">${`<li class="row${shopOpen ? ' open' : ''}"><span class="lead">${I.cart}</span><button type="button" class="rt" data-shopopen="1" aria-expanded="${shopOpen}"><span class="nm">Liste de courses</span><span class="sb">Pour toute la semaine</span>${I.chev}</button>${shopOpen ? `<div class="det">${coursesHtml()}</div>` : ''}</li>`}</ul>`;
 }
 const GROUPS = [['Viande, poisson, œufs', ['poulet', 'oeuf', 'meuniere', 'thon', 'sardines']], ['Laitier, whey', ['skyr', 'whey']], ['Féculents', ['pates', 'riz', 'wedges', 'avoine', 'pain']], ['Fruits et légumes', ['banane', 'fruit', 'tomate', 'salade', 'legumes']], ['Épicerie', ['sauce', 'amandes', 'huile', 'miel']]];
 function buyText(f, q) {
   const r = x => Math.ceil(x / 50) * 50;
   switch (f) {
-    case 'poulet': case 'skyr': return (Math.ceil(q / 100) / 10).toLocaleString('fr-FR') + ' kg';
+    case 'poulet': case 'skyr': return (Math.ceil(q / 100) / 10).toLocaleString('fr-FR') + '&nbsp;kg';
     case 'whey': return q + ' doses';
     case 'meuniere': return q + ' filet' + (q > 1 ? 's' : '');
     case 'thon': case 'sardines': return '1 boîte';
@@ -132,45 +133,16 @@ function buyText(f, q) {
     case 'miel': return q + ' c. à café';
     case 'pain': return q + ' tranches';
     case 'oeuf': case 'banane': case 'fruit': case 'tomate': return String(q);
-    default: return r(q) + ' g';
+    default: return r(q) + '&nbsp;g';
   }
 }
 function coursesHtml() {
   const wk = weekKey();
   if (!S.shop || S.shop.week !== wk) S.shop = { week: wk, checked: {} };
   const tot = {};
-  MEAL_DAYS.forEach(dn => mealsFor(dn).meals.forEach(m => { for (const f in m.items) tot[f] = (tot[f] || 0) + m.items[f]; }));
+  ORDER.forEach(k => mealsFor(nomJour(k)).meals.forEach(m => { for (const f in m.items) tot[f] = (tot[f] || 0) + m.items[f]; }));
   return GROUPS.map(([g, list]) => {
-    const rows = list.filter(f => tot[f]).map(f => { const on = !!S.shop.checked[f]; return `<button type="button" class="shop" data-shop="${f}" aria-pressed="${on}"><span class="bx">${tick}</span><span class="nm">${esc((tot[f] > 1 && F(f).pl ? F(f).pl : F(f).n).replace(/ \(.*\)$/, ''))}</span><span class="q">${esc(buyText(f, tot[f]))}</span></button>`; }).join('');
-    return rows ? `<section class="card grp mt12"><h3>${g}</h3>${rows}</section>` : '';
-  }).join('') + `<button type="button" class="danger" data-shopreset="1">Tout décocher</button>`;
+    const rows = list.filter(f => tot[f]).map(f => { const on = !!S.shop.checked[f]; return `<li class="shop${on ? ' on' : ''}"><button type="button" class="ck sm" data-shop="${f}" aria-pressed="${on}" aria-label="${esc(F(f).n)}">${I.check}</button><span class="nm">${esc((tot[f] > 1 && F(f).pl ? F(f).pl : F(f).n).replace(/ \(.*\)$/, ''))}</span><span class="q">${buyText(f, tot[f])}</span></li>`; }).join('');
+    return rows ? `<h4>${g}</h4><ul class="shopl">${rows}</ul>` : '';
+  }).join('') + (Object.keys(S.shop.checked).length ? '<button type="button" class="lnk" data-shopreset="1"><span>Tout décocher</span></button>' : '');
 }
-
-/* ---------------- fiches (exercice, réglages) ---------------- */
-function openSheet(kind, arg) {
-  const p = document.getElementById('sheetp');
-  if (kind === 'ex' || kind === 'exr') {
-    let e, slug, line = '', vsw = '';
-    if (kind === 'ex') {
-      const sl = slotById(arg); slug = slotSlug(sl); e = EXD[slug];
-      const pr = presc(sl, weekInfo()); line = pr ? `<p class="presc-l">${prescText({ sl, slug, pr })}</p>` : '';
-      const opts = slotOptions(sl);
-      if (opts.length > 1) vsw = `<div class="vsw"><small>Si c’est pris</small>${opts.map((o, i) => `<button type="button" data-svar="${sl.id}" data-i="${i}" aria-pressed="${o === slug}">${esc(EXD[o].short || EXD[o].name)}</button>`).join('')}</div>`;
-    } else { slug = arg; e = EXD[slug]; }
-    p.innerHTML = `<div class="grab"></div><h2>${esc(e.name)}</h2>${line}${vsw}<div class="mt12">${artHtml(e)}</div>${guideHtml(e)}`;
-  } else if (kind === 'settings') {
-    p.innerHTML = `<div class="grab"></div><h2>Réglages</h2>
-      <div class="field"><label for="sname">Prénom</label><input type="text" id="sname" autocomplete="given-name" value="${esc(S.name)}" placeholder="facultatif"></div>
-      <div class="field"><label>Thème</label><div class="seg" style="width:210px" role="group" aria-label="Thème"><button type="button" data-theme="auto" aria-pressed="${S.set.theme === 'auto'}">Auto</button><button type="button" data-theme="dark" aria-pressed="${S.set.theme === 'dark'}">Sombre</button><button type="button" data-theme="light" aria-pressed="${S.set.theme === 'light'}">Clair</button></div></div>
-      <div class="field"><label for="sstart">Début du programme<small>Un lundi</small></label><input type="date" id="sstart" value="${esc(S.start)}"></div>
-      <div class="field"><label for="sbeep">Bip à la fin du repos</label><span class="tog"><input type="checkbox" id="sbeep" ${S.set.beep ? 'checked' : ''}><span></span></span></div>
-      <div class="field"><label for="swake">Écran allumé pendant la séance</label><span class="tog"><input type="checkbox" id="swake" ${S.set.wake ? 'checked' : ''}><span></span></span></div>
-      <div class="field"><label for="scode">Code du coach<small>Version Netlify seulement</small></label><input type="password" id="scode" autocomplete="off" value="${esc(S.coach.code)}" placeholder="ton code"></div>
-      <div class="row mt16"><button type="button" class="btn sm" id="backup">Copier une sauvegarde</button><button type="button" class="btn sm ghost" id="restoreopen">Restaurer</button></div>
-      <div id="restore" hidden><textarea class="backup" id="restoretxt" placeholder="Colle ta sauvegarde ici"></textarea><button type="button" class="btn sm mt8" id="restoredo">Restaurer</button></div>`;
-  }
-  p.insertAdjacentHTML('afterbegin', `<button type="button" class="ico-btn sheet-x" data-close="1" aria-label="Fermer">${I.close}</button>`);
-  document.getElementById('sheet').classList.add('on'); document.body.classList.add('wo-on');
-  p.scrollTop = 0;
-}
-function closeSheet() { document.getElementById('sheet').classList.remove('on'); if (!WO.classList.contains('on')) document.body.classList.remove('wo-on'); }

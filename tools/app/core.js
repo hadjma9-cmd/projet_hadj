@@ -2,7 +2,6 @@
 const DATA = /*DATA*/null;
 const KEY = 'n10-v3', KEY2 = 'muscu-app-v2', KEY1 = 'muscu-app-v1';
 const view = document.getElementById('view');
-const WO = document.getElementById('wo');
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const p2 = n => String(n).padStart(2, '0');
 const ymd = d => d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate());
@@ -24,7 +23,7 @@ function isoWeek(d) { const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(),
 const fishWeek = () => isoWeek(new Date()) % 2 === 0 ? 'A' : 'B';
 
 /* ---------------- state (les anciennes données restent dans le stockage) ---------------- */
-const BLANK = () => ({ v: 3, start: null, name: '', variant: {}, weights: {}, hist: {}, cur: null, log: [], match: {}, food: {}, body: [], shop: {},
+const BLANK = () => ({ v: 3, start: null, name: '', variant: {}, weights: {}, hist: {}, cur: null, log: [], checks: {}, match: {}, food: {}, body: [], shop: {},
   coach: { code: '', msgs: [] }, set: { beep: true, wake: true, theme: 'auto' }, migrated: null });
 let S = BLANK();
 const DAYS = DATA.days, EXD = DATA.ex;
@@ -72,6 +71,16 @@ function loadState() {
   }
   const lim = addDays(TODAY(), -21);
   for (const d in (S.food || {})) if (d < lim) delete S.food[d];
+  if (!S.checks || typeof S.checks !== 'object') S.checks = {};
+  const lim2 = addDays(TODAY(), -120);
+  for (const d in S.checks) if (d < lim2) delete S.checks[d];
+  S.cur = null;
+  // les séances déjà validées dans l'ancienne version apparaissent cochées
+  S.log.forEach(l => {
+    if (S.checks[l.d] || l.d < weekKey() || l.d > addDays(weekKey(), 6)) return;
+    const k = KEYS[D(l.d).getDay()];
+    S.checks[l.d] = k === 'dimanche' ? (l.kind === 'match' ? ['m1'] : dayIds('dimanche')) : dayIds(k);
+  });
 }
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
 
@@ -117,12 +126,54 @@ function recordHist(slug, patch) {
   Object.assign(e, patch);
   if (h.length > 80) h.splice(0, h.length - 80);
 }
-const doneOn = d => S.log.some(l => l.d === d);
-function logDay(kind, name, col, extra) {
-  S.log = S.log.filter(l => !(l.d === TODAY() && l.kind === kind));
-  S.log.push(Object.assign({ d: TODAY(), day: todayKey(), kind, name, col }, extra || {}));
-  S.log.sort((a, b) => a.d.localeCompare(b.d));
-  if (S.log.length > 500) S.log.splice(0, S.log.length - 500);
+/* ---------------- cases à cocher (une par exercice) ---------------- */
+const dateOf = k => addDays(weekKey(), ORDER.indexOf(k));
+const checked = (d, id) => !!(S.checks[d] && S.checks[d].includes(id));
+function dayIds(k) {
+  const day = dayByKey(k);
+  if (day.kind === 'foot') return ['f1'];
+  if (day.kind === 'recup') return day.items.map(it => it.id);
+  if (day.kind === 'sunday') return day.tech.slots.map(s => s.id);
+  return day.slots.map(s => s.id);
+}
+function dayDone(k) {
+  const d = dateOf(k);
+  if (k === 'dimanche' && checked(d, 'm1')) return true;
+  return dayIds(k).every(id => checked(d, id));
+}
+function toggleCheck(k, id) {
+  const d = dateOf(k), was = dayDone(k);
+  const a = S.checks[d] || (S.checks[d] = []);
+  const i = a.indexOf(id);
+  if (i >= 0) a.splice(i, 1); else a.push(id);
+  if (!a.length) delete S.checks[d];
+  const now = dayDone(k);
+  if (now !== was) {   // l'historique garde les jours faits
+    S.log = S.log.filter(l => l.d !== d);
+    if (now) {
+      const day = dayByKey(k), match = k === 'dimanche' && checked(d, 'm1');
+      const v = k === 'dimanche' ? (match ? day.match : day.tech) : day;
+      S.log.push({ d, day: k, kind: k === 'dimanche' ? (match ? 'match' : 'tech') : day.kind, name: v.name, col: v.col || day.col });
+      S.log.sort((x, y) => x.d.localeCompare(y.d));
+      if (S.log.length > 500) S.log.splice(0, S.log.length - 500);
+    }
+  }
+  save();
+  return now && !was;
+}
+/* ---------------- poids notés ---------------- */
+const histOn = (slug, d) => { const e = (S.hist[slug] || []).find(x => x.d === d); return e ? num(e.w) : null; };
+function lastBefore(slug, d) {
+  const h = (S.hist[slug] || []).filter(x => x.d < d && num(x.w) != null);
+  return h.length ? num(h[h.length - 1].w) : num(S.weights[slug]);
+}
+function setW(slug, d, w) {
+  const h = S.hist[slug] || (S.hist[slug] = []);
+  let e = h.find(x => x.d === d);
+  if (w == null) { if (e) { delete e.w; if (Object.keys(e).length === 1) h.splice(h.indexOf(e), 1); } }
+  else { if (!e) { e = { d }; h.push(e); h.sort((a, b) => a.d.localeCompare(b.d)); } e.w = w; }
+  if (h.length > 80) h.splice(0, h.length - 80);
+  if (!h.length) delete S.hist[slug];
   save();
 }
 

@@ -1,16 +1,26 @@
 {
   "name": "Numéro 10 · prépa foot",
   "short_name": "N°10",
-  "description": "Préparation physique, vitesse, technique et repas d’un milieu offensif de foot à 7.",
+  "description": "Ton programme de muscu, de vitesse et de technique, et tes repas.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0A0D13",
-  "theme_color": "#0A0D13",
+  "background_color": "#F2F2F7",
+  "theme_color": "#F2F2F7",
   "lang": "fr",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ]
 }

@@ -3,9 +3,9 @@ import math
 LEN = dict(torso=62, ua=34, fa=32, th=46, sh=44, foot=17, head=14, neck=7)
 LW = 12      # limb width
 TW = 22      # torso width (side view)
-HEX = dict(k='#0d0d0d', q='#73726c', g='#c3c3b4', r='#deded8', t='#ececea', a='#2b78d6',
+HEX = dict(k='#0d0d0d', q='#73726c', g='#c3c3b4', f='#a3a39b', r='#deded8', t='#ececea', a='#2b78d6',
            ok='#2e9e5b', bad='#d64545', none='none')
-TOK = dict(k='k', q='q', g='g', r='r', t='t', a='a', ok='ok', bad='bad')
+TOK = dict(k='k', q='q', g='g', f='f', r='r', t='t', a='a', ok='ok', bad='bad')
 
 def dv(a):
     r = math.radians(a); return (math.cos(r), math.sin(r))
@@ -34,7 +34,7 @@ class Scene:
         self.items.append(('pl', [self._p(p) for p in pts], c, w, dash))
     def near(self, pts):
         self.items.append(('near', [self._p(p) for p in pts]))
-    def far(self, pts): self.pl(pts, 'g', LW)
+    def far(self, pts): self.pl(pts, 'f', LW)   # membres du côté opposé (gris)
     def circ(self, c, r, fill='k'):
         x, y = self._p(c); self.items.append(('c', x, y, r, fill))
     def ring(self, c, r, stroke='g', sw=2, fill='none'):
@@ -121,9 +121,9 @@ class Scene:
                 body.append(f"<text data-claude-text-id='{tid}' x='{x}' y='{y}' fontSize='{size}'{extra} fill={{{fill}}}>{s}</text>"); used.add(fill)
             elif k == 'g+': body.append(f"<g data-claude-anchor='{it[1]}'>")
             elif k == 'g-': body.append('</g>')
-        tok = dict(k='var(--cds-text-primary)', q='var(--cds-text-secondary)', g='var(--cds-chart-axis)', r='var(--cds-chart-grid)',
+        tok = dict(k='var(--cds-text-primary)', q='var(--cds-text-secondary)', g='var(--cds-chart-axis)', f='var(--cds-chart-axis)', r='var(--cds-chart-grid)',
                    t='var(--cds-chart-reference-tint)', a='var(--cds-chart-categorical-1)', ok='var(--cds-chart-status-good)', bad='var(--cds-chart-status-critical)')
-        need = ['k', 't', 'a', 'g'] + [c for c in ['q', 'r', 'ok', 'bad'] if c in used]
+        need = ['k', 't', 'a', 'g'] + [c for c in ['q', 'r', 'f', 'ok', 'bad'] if c in used]
         consts = ', '.join(f"{c} = '{tok[c]}'" for c in need)
         hl = ["const P = (p, c, w) => <polyline points={p} fill='none' stroke={c} strokeWidth={w} strokeLinecap='round' strokeLinejoin='round'/>;",
               f"const N = p => <g>{{P(p, g, {LW+4})}}{{P(p, k, {LW})}}</g>;",

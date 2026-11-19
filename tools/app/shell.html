@@ -1,52 +1,29 @@
 <!DOCTYPE html>
-<html lang="fr" data-theme="dark">
+<html lang="fr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="N°10">
-<meta name="description" content="Numéro 10 : préparation physique, vitesse, technique et repas d’un milieu offensif de foot à 7.">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0A0D13">
+<meta name="description" content="Numéro 10 : ton programme de muscu, de vitesse et de technique, et tes repas.">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F2F2F7">
 <title>Numéro 10</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
-<link rel="preload" href="fonts/big-shoulders-display-latin-900-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="fonts/barlow-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
-<script>
-try { var t = (JSON.parse(localStorage.getItem('n10-v3') || '{}').set || {}).theme || 'auto';
-  if (t === 'auto') t = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', t); } catch (e) {}
-</script>
 <style>
 /*CSS*/
 </style>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <linearGradient id="gradRing" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF5A1F"/><stop offset="1" stop-color="#F0386B"/></linearGradient>
-    <linearGradient id="gradArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF5A1F" stop-opacity=".35"/><stop offset="1" stop-color="#FF5A1F" stop-opacity="0"/></linearGradient>
-  </defs>
-</svg>
 <main id="view" aria-live="polite"></main>
-<section id="wo" aria-label="Séance en cours"></section>
-<div id="timer" role="timer" aria-live="polite"><div>
-  <div class="tm-top">
-    <div class="tm-ring"><svg viewBox="0 0 96 96"><circle class="bg" cx="48" cy="48" r="40"/><circle class="fg" id="tring" cx="48" cy="48" r="40" stroke-dasharray="251.3" stroke-dashoffset="0"/></svg><b id="tval">1:30</b></div>
-    <div class="tm-txt"><small id="tlbl">Repos</small><p id="tnext">Prochaine série</p></div>
-  </div>
-  <div class="tm-btns"><button type="button" id="tplus">+15 s</button><button type="button" id="tskip">Passer</button></div>
-</div></div>
-<div id="sheet" aria-modal="true" role="dialog"><div class="scrim" data-close="1"></div><div class="panel" id="sheetp"></div></div>
-<div class="toast" id="toast" role="status"></div>
 <nav class="nav" aria-label="Sections"><div>
-  <button type="button" data-tab="accueil"><svg viewBox="0 0 24 24"><path d="M3.5 10.5 12 4l8.5 6.5V20a1 1 0 0 1-1 1H15v-6H9v6H4.5a1 1 0 0 1-1-1z"/></svg>Aujourd’hui</button>
-  <button type="button" data-tab="programme"><svg viewBox="0 0 24 24"><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/></svg>Programme</button>
+  <button type="button" data-tab="seance"><svg viewBox="0 0 24 24"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg>Séance</button>
   <button type="button" data-tab="repas"><svg viewBox="0 0 24 24"><path d="M7 3v8a2 2 0 0 0 2 2v8M5 3v5M9 3v5M17 21V3c-2.5 1-4 3.5-4 7v3h4"/></svg>Repas</button>
-  <button type="button" data-tab="coach"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8.5 10.5h.01M12 10.5h.01M15.5 10.5h.01"/></svg>Coach</button>
+  <button type="button" data-tab="coach"><svg viewBox="0 0 24 24"><path d="M4.5 5.5h15v10.5H10l-5.5 4z"/></svg>Coach</button>
 </div></nav>
 <script>
 /*JS*/

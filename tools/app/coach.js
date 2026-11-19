@@ -1,5 +1,5 @@
 /* ---------------- coach IA ---------------- */
-const QUICK = ['Cette machine n’est pas dans ma salle, je fais quoi ?', 'J’ai mal quelque part, je fais quoi ?', 'Que manger avant mon match ?', 'Comment bien faire le squat ?'];
+const QUICK = ['Cette machine n’est pas dans ma salle, je fais quoi ?', 'J’ai mal quelque part, je fais quoi ?', 'Que manger avant mon match ?'];
 let coachBusy = false, coachMode = null, sampler = null, coachAbort = null;
 async function detectCoach() {
   if (coachMode) return coachMode;
@@ -35,16 +35,18 @@ function md(t) {
   close(); return html;
 }
 function coachSetupHtml() {
-  return `<div class="banner"><b>Coach à activer sur ce site.</b> Entre ton code dans les réglages (roue crantée de l’accueil).<br><br>Gratuit avec ton abonnement : <a href="${DATA.artifact}#coach">ouvrir le coach dans Claude</a>.</div>`;
+  return `<div class="banner"><p>Pour utiliser le coach sur ce site, entre ton code :</p>
+    <form id="codeform" class="codef"><input type="password" id="ccode" autocomplete="off" placeholder="Ton code" aria-label="Code du coach"><button type="submit">OK</button></form>
+    <p>Ou gratuitement avec ton abonnement Claude : <a href="${DATA.artifact}#coach" target="_blank" rel="noopener">ouvrir le coach dans Claude</a>.</p></div>`;
 }
 function renderCoach() {
   const msgs = S.coach.msgs, empty = !msgs.length;
   view.className = '';
-  view.innerHTML = `<div class="page-h"><h1>Coach</h1></div>
+  view.innerHTML = `<header class="head"><p class="over">Une question ? Demande.</p><h1>Coach</h1></header>
     <div id="coachnote"></div>
-    <div class="quick">${QUICK.map(q => `<button type="button" data-q="${esc(q)}">${esc(q)}</button>`).join('')}</div>
-    <div class="chat" id="chat">${empty ? `<div class="msg bot"><p>Salut ! Pose-moi ta question : un exercice que tu ne comprends pas, une machine qui manque, une douleur, ou quoi manger.</p></div>` : msgs.map(m => m.role === 'user' ? `<div class="msg user">${esc(m.content)}</div>` : `<div class="msg bot">${md(m.content)}</div>`).join('')}</div>
-    ${empty ? '' : '<button type="button" class="danger mt12" id="newchat">Nouvelle conversation</button>'}
+    ${empty ? `<ul class="list quick">${QUICK.map(q => `<li class="row"><button type="button" class="rt" data-q="${esc(q)}"><span class="nm">${esc(q)}</span>${I.chev}</button></li>`).join('')}</ul>` : ''}
+    <div class="chat" id="chat">${msgs.map(m => m.role === 'user' ? `<div class="msg user">${esc(m.content)}</div>` : `<div class="msg bot">${md(m.content)}</div>`).join('')}</div>
+    ${empty ? '' : '<button type="button" class="lnk center" id="newchat"><span>Nouvelle conversation</span></button>'}
     <div class="coach-pad"></div>
     <div class="composer"><form id="composer"><textarea id="ask" rows="1" placeholder="Écris ta question…" aria-label="Ta question"></textarea><button type="submit" aria-label="Envoyer">${I.send}</button></form></div>`;
   detectCoach().then(mode => {
@@ -98,8 +100,8 @@ async function askCoach(text) {
     S.coach.msgs.push({ role: 'assistant', content: answer });
   } catch (e) {
     const c = (e && e.code) || 'error';
-    const msg = c === 'no_code' || c === 'bad_code' ? 'Code du coach manquant ou incorrect : vérifie-le dans les réglages (roue crantée de l’accueil).'
-      : c === 'not_configured' ? 'Le coach n’est pas encore activé sur ce site : il faut ajouter la clé dans Netlify (voir le message en haut).'
+    const msg = c === 'no_code' || c === 'bad_code' ? 'Code du coach manquant ou incorrect : entre-le en haut de cette page.'
+      : c === 'not_configured' ? 'Le coach n’est pas encore activé sur ce site. Utilise le lien vers Claude en haut de la page.'
       : c === 'bad_key' ? 'La clé Claude enregistrée dans Netlify n’est pas valide : vérifie la variable ANTHROPIC_API_KEY.'
       : c === 'rate_limited' ? 'Trop de questions d’un coup : réessaie dans une minute.'
       : c === 'not_granted' ? 'Tu as refusé l’accès à Claude pour cette page : le coach ne peut pas répondre ici.'
@@ -107,7 +109,7 @@ async function askCoach(text) {
       : 'Le coach n’a pas pu répondre' + (e && e.detail ? ' (' + String(e.detail).slice(0, 120) + ')' : '') + '. Réessaie dans un instant.';
     bubble.className = 'msg bot err'; bubble.textContent = msg;
     if (answer.trim()) S.coach.msgs.push({ role: 'assistant', content: answer }); else S.coach.msgs.pop();
-    if (c === 'not_configured' || c === 'no_code') { const n = document.getElementById('coachnote'); if (n) n.innerHTML = coachSetupHtml(); }
+    if (c === 'not_configured' || c === 'no_code' || c === 'bad_code') { const n = document.getElementById('coachnote'); if (n) n.innerHTML = coachSetupHtml(); }
   } finally {
     coachBusy = false; coachAbort = null; save();
     if (tab === 'coach' && document.getElementById('chat') && !bubble.classList.contains('err')) renderCoach();
