@@ -404,9 +404,9 @@ def _(sc):
             sc.arrow((140, 96), (300, 170), (232, 30))
             sc.pl([(76, 207), (76, 186)], 'a', 3)
         else:
-            hip = (256, 146); tor = -54
-            side(sc, hip, tor, head=tor - 10, legs=[dict(ankle=(268, 204), bend=-1, foot=0)], arms=[dict(ua=-30, fa=-20)])
-            sc.pl([(36, 207), (36, 186)], 'a', 3); sc.pl([(36, 196), (258, 196)], 'a', 2, '5 6')
+            hip = (222, 146); tor = -54
+            side(sc, hip, tor, head=tor - 10, legs=[dict(ankle=(234, 204), bend=-1, foot=0)], arms=[dict(ua=-30, fa=-20)])
+            sc.pl([(36, 207), (36, 186)], 'a', 3); sc.pl([(36, 196), (224, 196)], 'a', 2, '5 6')
     panels(sc, 'Bras en arrière, quart de squat', 'Réception tenue 2 secondes', draw=draw)
 
 
@@ -486,7 +486,7 @@ def _(sc):
             hip = (128, 136); tor = -42
             kn_f, an_f, ft_f = leg_from(hip, 40, 98, 0)
             sh = add(hip, tor, LEN['torso'])
-            body(sc, dict(hip=hip, sh=sh, legs=[(kn_f, an_f, ft_f, False), leg_from(hip, 108, 122, 30) + (True,)],
+            body(sc, dict(hip=hip, sh=sh, legs=[(kn_f, an_f, ft_f, False), leg_from(hip, 118, 138, 30) + (True,)],
                           arms=[arm_from(sh, 110, 60) + (False,), arm_from(sh, 40, -40) + (True,)]), head_ang=tor + 4)
             sc.arrow((210, 120), (290, 120))
         else:

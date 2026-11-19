@@ -364,7 +364,7 @@ def _(sc):
 def _(sc):
     def draw(sc, i):
         a = (70, 201)
-        th = -23.6 if i == 0 else -4.1
+        th = -23.6 if i == 0 else -9.5
         kn = add(a, th, LEN['sh']); hip = add(kn, th, LEN['th']); sh = add(hip, th, LEN['torso'])
         hand = (212, 204)
         if i == 0: el = ((sh[0] + hand[0]) / 2, (sh[1] + hand[1]) / 2)

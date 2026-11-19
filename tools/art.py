@@ -35,7 +35,7 @@ def sig(it):
     k = it[0]
     if k == 'pl': return ('pl', len(it[1]), it[2], it[3], it[4])
     if k == 'near': return ('near', len(it[1]))
-    if k == 'c': return ('c', it[3], it[4])
+    if k == 'c': return ('c', it[4]) if it[4] == 'k' else ('c', it[3], it[4])   # la tête peut changer de taille d'une pose à l'autre
     if k == 'ring': return ('ring', it[3], it[4], it[5], it[6])
     if k == 'b': return ('b', it[3], it[4], it[5], it[6], it[7])
     return (k,)
@@ -140,6 +140,8 @@ def rig(draw, hop=0):
             fc = 'f-none' if a[6] == 'none' else ('f-halo' if a[4] == 'a' else 'f-eq')
             out_items.append(['r', fc + ' s-' + a[4], a[5], a[3], ids[0]])
         elif k == 'b': out_items.append(['b', a[3], a[4], a[7], ids[0]])
+    heads = [it for it in out_items if it[0] == 'c' and it[1] == 'f-k']
+    out_items = [it for it in out_items if it not in heads] + heads   # la tête reste visible, même bras levés
     moving = [pos[i] for i in seq if disp(i) > .5]
     R = dict(vb=VB, n=out_nodes, it=out_items)
     if hop: R['h'] = hop; R['m'] = moving
@@ -184,11 +186,23 @@ def frames(draw):
     out, caps = groups(sc), []
     for it in sc.items:
         if it[0] == 't' and it[1] in ('pose-1', 'pose-2'): caps.append(re.sub(r'^\d · ', '', it[4]))
+    def local_box(items, ox):
+        xs, ys = [], []
+        for it in items:
+            k = it[0]
+            if k in ('pl', 'near'): pts, m = it[1], (it[3] / 2 if k == 'pl' else 9)
+            elif k in ('c', 'ring'): pts, m = [(it[1], it[2])], it[3]
+            elif k == 'b' and not is_panel(it): pts, m = [(it[1], it[2]), (it[1] + it[3], it[2] + it[4])], 1
+            else: continue
+            for x, y in pts: xs += [x - ox - m, x - ox + m]; ys += [y - m]
+        return (min(xs), min(ys), max(xs)) if xs else (0, 4, 344)
+    b0, b1 = local_box(out[0], 24), local_box(out[1], 392)
+    x0, y0, x1 = min(0, b0[0] - 8, b1[0] - 8), min(-16, b0[1] - 8, b1[1] - 8), max(344, b0[2] + 8, b1[2] + 8)
     svgs = []
     for i, items in enumerate(out[:2]):
         ox = 24 if i == 0 else 392
         mid = f'm-{draw}-{i}'
-        o = [f"<svg viewBox='{ox} 30 344 234' aria-hidden='true'><defs><marker id='{mid}' viewBox='0 0 10 10' refX='7' refY='5' markerWidth='5' markerHeight='5' orient='auto-start-reverse'><path d='M0 0L10 5L0 10z' class='f-a'/></marker></defs>"]
+        o = [f"<svg viewBox='{ox + x0:.0f} {46 + y0:.0f} {x1 - x0:.0f} {218 - y0:.0f}' aria-hidden='true'><defs><marker id='{mid}' viewBox='0 0 10 10' refX='7' refY='5' markerWidth='5' markerHeight='5' orient='auto-start-reverse'><path d='M0 0L10 5L0 10z' class='f-a'/></marker></defs>"]
         for it in items:
             k = it[0]
             if k == 'pl':
