@@ -1,8 +1,8 @@
 # Numéro 10 · prépa foot
 
-App web (iPhone), en liste simple : chaque jour, la liste des exercices à cocher. On touche un exercice pour voir son dessin animé, comment le faire, un conseil et ce qu'il faut éviter. Il y a aussi les repas, la liste de courses et un coach IA.
+App web (iPhone) sur le thème du terrain. En haut, les jours de la semaine. Pour chaque jour, la séance se présente comme une feuille de match : les exercices numérotés, à cocher. « Commencer » ouvre une fiche par exercice : le dessin animé à la craie sur le terrain, séries, répétitions et repos, comment le faire, un conseil, ce qu'il faut éviter. On glisse pour passer à l'exercice suivant, et « C'est fait » coche puis avance. Il y a aussi les repas, la liste de courses et un coach IA.
 
-- `public/` : le site publié par Netlify (`index.html`, icônes, mode hors ligne `sw.js`).
+- `public/` : le site publié par Netlify (`index.html`, police Archivo dans `fonts/`, icônes, mode hors ligne `sw.js`).
 - `netlify/edge-functions/coach.js` : relaie les questions du coach vers l'API Claude.
 - `tools/` : génère `public/index.html`. Après une modification : `python3 tools/build.py`.
   - `program.py` : exercices (exécution, conseil, à éviter), semaine type, progression sur 12 semaines.
@@ -25,3 +25,5 @@ Dans Netlify → Project configuration → Environment variables, ajouter :
 | `COACH_MODEL` | facultatif, `claude-haiku-5-5` par défaut |
 
 Puis Deploys → Trigger deploy.
+
+Police : Archivo (SIL Open Font License), servie depuis `public/fonts/`.

@@ -2,149 +2,208 @@
 const I = {
   check: '<svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9"/></svg>',
   chev: '<svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>',
+  close: '<svg viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>',
   play: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path class="fill" d="M10 8.6v6.8l5.6-3.4z"/></svg>',
   ok: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="M8 12.4l2.8 2.8 5.4-5.6"/></svg>',
   no: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="M9 9l6 6M15 9l-6 6"/></svg>',
   swap: '<svg viewBox="0 0 24 24"><path d="M5 9h13l-3.5-3.5M19 15H6l3.5 3.5"/></svg>',
-  warm: '<svg viewBox="0 0 24 24"><path d="M12 3.5c.6 2.8 4.5 4.6 4.5 9a4.5 4.5 0 0 1-9 0c0-1.9.9-3.3 2-4.2.1 1.4.8 2.3 1.8 2.7-.2-2.6-.3-5 .7-7.5z"/></svg>',
-  ball: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5l3.6 2.6-1.4 4.2H9.8l-1.4-4.2z"/><path d="M12 3v4.5M15.6 10.1l4.6-1.5M14.2 14.3l2.8 4M9.8 14.3 7 18.3M8.4 10.1 3.8 8.6"/></svg>',
-  send: '<svg viewBox="0 0 24 24"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg>',
+  whistle: '<svg viewBox="0 0 24 24"><path d="M9 8.5h11.5v4.2h-6.6"/><circle cx="9" cy="14" r="5.5"/><circle cx="9" cy="14" r="1.5"/></svg>',
+  flame: '<svg viewBox="0 0 24 24"><path d="M12 3.5c.6 2.8 4.5 4.6 4.5 9a4.5 4.5 0 0 1-9 0c0-1.9.9-3.3 2-4.2.1 1.4.8 2.3 1.8 2.7-.2-2.6-.3-5 .7-7.5z"/></svg>',
   cart: '<svg viewBox="0 0 24 24"><path d="M3 4.5h2.2l2.1 10.2h10.2l2-7.2H6.6"/><circle cx="9.3" cy="19" r="1.4"/><circle cx="16.4" cy="19" r="1.4"/></svg>',
+  send: '<svg viewBox="0 0 24 24"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg>',
 };
-const LETTRES = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
 const nomJour = k => JOURS[KEYS.indexOf(k)];
-let selDay = todayKey(), openId = null, shopOpen = false;
+let selDay = todayKey(), warmOpen = false, shopOpen = false;
 
-function prescText(sl, slug, pr) {
+/* ---------------- textes d'une prescription ---------------- */
+function prescLine(sl, slug, pr) {
   const reps = repsFor(sl, slug, pr);
-  const s = pr.sets > 1 ? `${pr.sets}&nbsp;×&nbsp;${esc(reps)}` : esc(reps);
-  return s + (pr.rest ? ` · repos ${restTxt(pr.rest)}` : '');
+  return (pr.sets > 1 ? `${pr.sets}&nbsp;×&nbsp;${esc(reps)}` : esc(reps)) + (pr.rest ? `, repos ${restTxt(pr.rest)}` : '');
 }
-const dayTag = k => k === 'dimanche' ? 'Match' : dayByKey(k).tag;
-function weekStrip() {
-  return `<nav class="week" aria-label="Jours de la semaine">${ORDER.map(k => {
-    const sel = k === selDay, done = dayDone(k);
-    return `<button type="button" class="wd${sel ? ' sel' : ''}${k === todayKey() ? ' today' : ''}" data-day="${k}" aria-pressed="${sel}" aria-label="${nomJour(k)} : ${esc(dayByKey(k).name)}${done ? ', fait' : ''}"><b>${nomJour(k).slice(0, 3)}</b><small>${esc(dayTag(k))}</small>${done ? `<i>${I.check}</i>` : ''}</button>`;
+function scoreItems(sl, slug, pr) {   // les trois chiffres de la fiche : séries, répétitions, repos
+  const reps = String(repsFor(sl, slug, pr)), out = [];
+  if (pr.sets > 1) out.push([String(pr.sets), 'séries']);
+  const m = reps.match(/^(\d+(?:\s*[–-]\s*\d+)?)\s*(.*)$/);
+  if (!m) out.push([esc(reps), '']);
+  else {
+    const n = m[1], rest = m[2].replace(/^,\s*/, '');
+    if (rest === '') out.push([n, 'répétitions']);
+    else if (/^(s|min)$/.test(rest)) out.push([n + '&nbsp;' + rest, rest === 's' ? 'tenue' : 'durée']);
+    else if (rest === 'm') out.push([n + '&nbsp;m', 'distance']);
+    else if (/^m\b/.test(rest)) out.push([n + '&nbsp;m', rest.replace(/^m\s*\+?\s*/, 'puis ')]);
+    else out.push([n, /^(par |passes|passage)/.test(rest) ? rest : 'répétitions, ' + rest]);
+  }
+  if (pr.rest) out.push([pr.rest < 60 ? pr.rest + '&nbsp;s' : pr.rest % 60 ? Math.floor(pr.rest / 60) + ':' + p2(pr.rest % 60) : pr.rest / 60 + '&nbsp;min', 'repos']);
+  return out;
+}
+
+/* ---------------- bandeau « terrain » ---------------- */
+function dayStrip() {
+  return `<nav class="days" aria-label="Jours de la semaine">${ORDER.map(k => {
+    const sel = k === selDay, today = k === todayKey(), done = dayDone(k);
+    return `<button type="button" class="dy${sel ? ' sel' : ''}" data-day="${k}" aria-pressed="${sel}" aria-label="${nomJour(k)}${today ? ', aujourd’hui' : ''}${done ? ', fait' : ''}"><span>${nomJour(k).slice(0, 3)}</span><i class="${done ? 'd' : today ? 't' : ''}">${done ? I.check : ''}</i></button>`;
   }).join('')}</nav>`;
 }
-const overline = k => k === todayKey() ? 'Aujourd’hui' : nomJour(k);
+const LINES = '<svg class="lines" viewBox="0 0 390 300" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><path d="M318 -10V310"/><circle cx="318" cy="168" r="74"/><circle cx="318" cy="168" r="4.5" class="spot"/></svg>';
+const band = (inner, days = true) => `<header class="band">${LINES}${days ? dayStrip() : ''}<div class="band-in">${inner}</div></header>`;
 
-/* ---------------- ouverture automatique : l'exercice à faire est déjà ouvert ---------------- */
-let autoFor = null;
-function rowOrder(k) {   // lignes à cocher qui ont une fiche, dans l'ordre
-  const day = dayByKey(k);
-  if (day.kind === 'gym' || day.kind === 'speed') return day.slots.map(s => s.id);
-  if (day.kind === 'recup') return day.items.map(it => it.id);
-  if (day.kind === 'sunday') return day.tech.slots.map(s => s.id);
+/* ---------------- les fiches du jour (ce qu'on fait défiler) ---------------- */
+function deckFor(k, which) {
+  const day = dayByKey(k), info = weekInfo();
+  const fromSlots = slots => slots.map(sl => ({ sl, slug: slotSlug(sl), pr: presc(sl, info) })).filter(p => p.pr)
+    .map(p => ({ id: p.sl.id, type: 'ex', sl: p.sl, slug: p.slug, pr: p.pr }));
+  if (day.kind === 'gym' || day.kind === 'speed') return fromSlots(day.slots);
+  if (day.kind === 'recup') return day.items.map(it => it.ex
+    ? { id: it.id, type: 'ex', sl: { id: it.id, ex: it.ex, alts: [], kind: 'recup' }, slug: it.ex, pr: { sets: 1, reps: '20 min', rest: 0 }, name: 'Vélo facile' }
+    : { id: it.id, type: 'list', name: 'Étirements', sub: '10 min, sans forcer', list: it.list });
+  if (day.kind === 'sunday') return which === 'match' ? [{ id: 'm1', type: 'match' }] : fromSlots(day.tech.slots);
   return [];
 }
-function nextOpen(k, from) {
-  const ids = rowOrder(k), d = dateOf(k), i = ids.indexOf(from);
-  const rest = ids.slice(i + 1).concat(ids.slice(0, Math.max(0, i)));
-  return rest.find(id => !checked(d, id)) || null;
+const cardName = c => c.type === 'ex' ? (c.name || EXD[c.slug].name) : c.type === 'match' ? 'Match' : c.name;
+
+/* ---------------- SÉANCE ---------------- */
+function lineupHtml(k, deck, which, warmKey, title) {
+  const d = dateOf(k);
+  let h = '<section class="lineup">' + (title ? `<h2 class="lh">${esc(title)}</h2>` : '');
+  if (warmKey) {
+    h += `<button type="button" class="row warm" data-warm="1" aria-expanded="${warmOpen}"><span class="num ic">${I.flame}</span><span class="tx"><b>Échauffement</b><small>8 à 10 min</small></span>${I.chev}</button>`;
+    if (warmOpen) h += `<ul class="warm-l">${DATA.warmup[warmKey].map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
+  }
+  h += '<ol class="xs">' + deck.map((c, i) => {
+    const on = checked(d, c.id);
+    const sub = c.type === 'ex' ? (c.sl.kind === 'recup' ? '20 min, sans forcer' : prescLine(c.sl, c.slug, c.pr)) : c.type === 'list' ? esc(c.sub) : 'Avant, échauffement, après';
+    return `<li class="x${on ? ' on' : ''}"><button type="button" class="row" data-deck="${which}" data-i="${i}"><span class="num${c.type === 'match' ? ' ic' : ''}">${c.type === 'match' ? I.whistle : i + 1}</span><span class="tx"><b>${esc(cardName(c))}</b><small>${sub}</small></span></button>`
+      + `<button type="button" class="tick" data-ck="${c.id}" aria-pressed="${on}" aria-label="${esc(cardName(c))} : fait">${I.check}</button></li>`;
+  }).join('') + '</ol>';
+  return h + '</section>';
 }
-function autoOpen(k) {
-  if (autoFor === k) return;
-  autoFor = k;
-  const d = dateOf(k), ids = rowOrder(k);
-  if (k === 'dimanche' && !ids.some(id => checked(d, id))) { openId = null; return; }   // match ou technique : à lui de choisir
-  openId = ids.find(id => !checked(d, id)) || null;
+function renderSeance() {
+  const k = selDay, day = dayByKey(k), info = weekInfo(), d = dateOf(k), today = k === todayKey();
+  let what = day.name, meta = '', cta = '', body = '';
+  const foot = [], done = dayDone(k);
+  if (day.kind === 'gym' || day.kind === 'speed' || day.kind === 'recup') {
+    const deck = deckFor(k, 'main'), n = deck.filter(c => checked(d, c.id)).length;
+    meta = day.kind === 'recup' ? `${day.theme}, ${day.dur}` : `${deck.length} exercices, ${day.dur}`;
+    cta = done ? `<p class="fini">${I.check}<span>${day.kind === 'recup' ? 'Récup faite' : 'Séance terminée'}. Bien joué&nbsp;!</span></p>`
+      : `<button type="button" class="cta" data-start="main">${n ? 'Continuer' : 'Commencer'}</button>`;
+    body = lineupHtml(k, deck, 'main', day.warm);
+    if (day.note) foot.push(day.note);
+    if (day.place) foot.push('Matériel : ' + day.place.charAt(0).toLowerCase() + day.place.slice(1) + '.');
+    if (info.learn && day.kind === 'gym') foot.push('Semaines 1 et 2 : 2 séries seulement, le temps d’apprendre les gestes.');
+    if (info.deload && day.kind !== 'recup') foot.push('Semaine plus légère : une série de moins partout.');
+    if (day.kind === 'gym') foot.push('Toutes tes répétitions passent facilement ? Ajoute un peu de poids la fois suivante. Garde toujours 1 ou 2 répétitions en réserve.');
+  } else if (day.kind === 'foot') {
+    meta = 'Avec ton équipe';
+    cta = checked(d, 'f1') ? `<button type="button" class="fini as-btn" data-ck="f1">${I.check}<span>Entraînement fait. Bien joué&nbsp;!</span></button>`
+      : `<button type="button" class="cta" data-ck="f1">C’est fait</button>`;
+    body = `<section class="lineup text"><p>${esc(day.text)}</p></section>`;
+  } else if (day.kind === 'sunday') {
+    what = 'Match ou technique';
+    meta = 'Choisis selon ton dimanche';
+    if (done) cta = `<p class="fini">${I.check}<span>${checked(d, 'm1') ? 'Match joué' : 'Technique faite'}. Bien joué&nbsp;!</span></p>`;
+    body = lineupHtml(k, deckFor(k, 'match'), 'match', null, 'J’ai match') + lineupHtml(k, deckFor(k, 'tech'), 'tech', day.tech.warm, 'Pas de match : séance technique');
+    foot.push('Matériel pour la technique : ' + day.tech.place.charAt(0).toLowerCase() + day.tech.place.slice(1) + '.');
+  }
+  view.innerHTML = band(`${today ? '<p class="when">Aujourd’hui</p>' : ''}<h1 class="xd">${nomJour(k)}</h1><p class="what">${esc(what)}</p>${meta ? `<p class="meta">${esc(meta)}</p>` : ''}${cta}`)
+    + `<div class="page">${body}${foot.map(f => `<p class="foot">${esc(f)}</p>`).join('')}</div>`;
 }
 
-/* ---------------- une ligne de la liste ---------------- */
-function rowHtml(k, r) {
-  const d = dateOf(k), open = openId === r.id;
-  const lead = r.check === false ? `<span class="lead">${r.icon || ''}</span>`
-    : `<button type="button" class="ck" data-ck="${r.id}" aria-pressed="${checked(d, r.id)}" aria-label="${esc(r.name)} : fait">${I.check}</button>`;
-  const body = `<span class="nm">${esc(r.name)}</span>${r.sub ? `<span class="sb">${r.sub}</span>` : ''}`;
-  return `<li class="row${r.check !== false && checked(d, r.id) ? ' on' : ''}${open ? ' open' : ''}">${lead}`
-    + (r.detail ? `<button type="button" class="rt" data-open="${r.id}" aria-expanded="${open}">${body}${I.chev}</button>` : `<div class="rt">${body}</div>`)
-    + (open && r.detail ? `<div class="det">${r.detail()}</div>` : '') + '</li>';
-}
+/* ---------------- la fiche plein écran (on fait défiler les exercices) ---------------- */
+let SH = null;   // { k, which, deck, i }
+const sheetEl = () => document.getElementById('sheet');
 function ytUrl(sl, e) {
   const q = e.name.replace(/\s*\(.*\)/, '') + (['plyo', 'sprint', 'cod', 'ball'].includes(sl.kind) ? ' exercice football' : ' musculation');
   return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q);
 }
-function exDetail(k, sl, slug, pr) {
-  const e = EXD[slug], d = dateOf(k), opts = slotOptions(sl);
-  let h = figHtml(slug);
+function cardHtml(c, d) {
+  if (c.type === 'list') return `<article class="card"><h2 class="xd">${esc(c.name)}</h2><p class="lead">${esc(c.sub)}</p><ol class="steps">${c.list.map(x => `<li>${esc(x)}</li>`).join('')}</ol></article>`;
+  if (c.type === 'match') {
+    const m = dayByKey('dimanche').match;
+    const li = a => `<ul class="plain">${a.map(x => `<li>${esc(x)}</li>`).join('')}</ul>`;
+    return `<article class="card"><h2 class="xd">Jour de match</h2><h3>Avant</h3>${li(m.before)}<h3>Échauffement</h3>${li(DATA.warmup.match)}<h3>Après</h3>${li(m.after)}</article>`;
+  }
+  const e = EXD[c.slug], sl = c.sl, opts = slotOptions(sl);
+  let h = `<article class="card">${figHtml(c.slug)}<h2 class="xd">${esc(cardName(c))}</h2>`;
+  h += `<div class="score">${scoreItems(sl, c.slug, c.pr).map(([v, l]) => `<div><b class="xd">${v}</b><small>${esc(l)}</small></div>`).join('')}</div>`;
   if (e.steps && e.steps.length) h += `<ol class="steps">${e.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol>`;
   if (e.tip) h += `<p class="tip ok">${I.ok}<span>${esc(e.tip)}</span></p>`;
   if (e.err) h += `<p class="tip no">${I.no}<span>${esc(e.err)}</span></p>`;
-  if (modeOf(sl, slug, repsFor(sl, slug, pr)) === 'load') {
-    const cur = histOn(slug, d), last = lastBefore(slug, d);
+  if (modeOf(sl, c.slug, repsFor(sl, c.slug, c.pr)) === 'load') {
+    const cur = histOn(c.slug, d), last = lastBefore(c.slug, d);
     const hint = last != null ? `La dernière fois : ${frn(last)}&nbsp;kg` : e.start ? `Pour commencer : ${esc(e.neg ? e.start.replace(/^Contrepoids\s*/i, '') : e.start)}` : '';
-    h += `<div class="wt"><label for="w-${sl.id}">${e.neg ? 'Contrepoids' : 'Poids'}</label><input id="w-${sl.id}" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" data-w="${slug}" value="${cur != null ? frn(cur) : ''}" placeholder="–"><span>kg</span>${hint ? `<small>${hint}</small>` : ''}</div>`;
+    h += `<div class="wt"><label for="w-${sl.id}">${e.neg ? 'Contrepoids' : 'Poids'}</label><input id="w-${sl.id}" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" data-w="${c.slug}" value="${cur != null ? frn(cur) : ''}" placeholder="–"><span>kg</span>${hint ? `<small>${hint}</small>` : ''}</div>`;
   }
   h += '<div class="links">';
   if (e.eq !== 'velo') h += `<a class="lnk" href="${ytUrl(sl, e)}" target="_blank" rel="noopener">${I.play}<span>Voir en vidéo</span></a>`;
-  opts.forEach((o, i) => { if (o !== slug) h += `<button type="button" class="lnk" data-alt="${sl.id}" data-i="${i}">${I.swap}<span>${o === sl.ex ? 'Revenir à' : 'Pris ? Fais plutôt'} : ${esc(EXD[o].name)}</span></button>`; });
-  return h + '</div>';
+  opts.forEach((o, j) => { if (o !== c.slug) h += `<button type="button" class="lnk" data-alt="${sl.id}" data-j="${j}">${I.swap}<span>${o === sl.ex ? 'Revenir à' : 'Pas dispo ? Fais plutôt'} : ${esc(EXD[o].name)}</span></button>`; });
+  return h + '</div></article>';
 }
-function listHtml(k, rows) { return `<ul class="list">${rows.map(r => rowHtml(k, r)).join('')}</ul>`; }
-function warmRow(key, extra) {
-  return { id: 'w-' + key, check: false, icon: I.warm, name: 'Échauffement', sub: '8 à 10&nbsp;min',
-    detail: () => `<ul class="plain">${DATA.warmup[key].concat(extra || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul>` };
+function renderSheet() {
+  const el = sheetEl(), d = dateOf(SH.k);
+  SH.deck = deckFor(SH.k, SH.which);
+  const hint = !S.seenSwipe && SH.deck.length > 1;
+  if (hint) { S.seenSwipe = true; save(); }
+  el.innerHTML = `<div class="sh-top"><button type="button" class="shx" data-close="1" aria-label="Fermer">${I.close}</button><div class="segs">${SH.deck.map((c, j) => `<button type="button" data-seg="${j}" aria-label="${esc(cardName(c))}"></button>`).join('')}</div></div>
+    ${hint ? '<p class="swipe-hint">Glisse sur le côté pour passer d’un exercice à l’autre.</p>' : ''}
+    <div class="track" id="track">${SH.deck.map(c => cardHtml(c, d)).join('')}</div>
+    <div class="sh-bot"><button type="button" class="go" data-done="1"></button></div>`;
+  const tr = document.getElementById('track');
+  tr.addEventListener('scroll', onTrack, { passive: true });
+  tr.scrollLeft = SH.i * tr.clientWidth;
+  syncSheet();
 }
-function slotRows(k, slots, info) {
-  return slots.map(sl => ({ sl, slug: slotSlug(sl), pr: presc(sl, info) })).filter(p => p.pr).map(p => ({
-    id: p.sl.id, name: EXD[p.slug].name, sub: prescText(p.sl, p.slug, p.pr), detail: () => exDetail(k, p.sl, p.slug, p.pr) }));
+function syncSheet() {   // segments, bouton du bas, dessin animé
+  const d = dateOf(SH.k), c = SH.deck[SH.i];
+  sheetEl().querySelectorAll('[data-seg]').forEach((b, j) => { b.className = (checked(d, SH.deck[j].id) ? 'd' : '') + (j === SH.i ? ' c' : ''); });
+  const go = sheetEl().querySelector('.go'), on = checked(d, c.id);
+  go.className = 'go' + (on ? ' is-done' : '');
+  go.innerHTML = on ? `${I.check}<span>Fait</span>` : `<span>${c.type === 'match' ? 'Match joué' : 'C’est fait'}</span>`;
+  go.setAttribute('aria-label', on ? cardName(c) + ' : fait. Toucher pour annuler' : cardName(c) + ' : c’est fait');
+  const card = sheetEl().querySelectorAll('.card')[SH.i];
+  playFig(card && card.querySelector('svg[data-rig]'));
 }
-
-/* ---------------- SÉANCE ---------------- */
-function renderSeance() {
-  const k = selDay, day = dayByKey(k), info = weekInfo(), d = dateOf(k);
-  autoOpen(k);
-  let title = day.name, sub = [day.theme, day.dur].filter(Boolean).join(' · '), notes = [], body = '';
-  if (day.kind === 'gym' || day.kind === 'speed') {
-    if (day.note) notes.push(day.note);
-    if (day.place) notes.push('Matériel : ' + day.place.charAt(0).toLowerCase() + day.place.slice(1) + '.');
-    body = listHtml(k, [warmRow(day.warm)].concat(slotRows(k, day.slots, info)));
-    const foot = [];
-    if (info.learn && day.kind === 'gym') foot.push('Semaines 1 et 2 : 2 séries seulement, le temps d’apprendre les gestes.');
-    if (info.deload) foot.push('Semaine plus légère : une série de moins partout.');
-    if (day.kind === 'gym') foot.push('Toutes tes répétitions passent facilement ? Ajoute un peu de poids la fois suivante. Garde toujours 1 ou 2 répétitions en réserve.');
-    body += foot.map(f => `<p class="foot">${esc(f)}</p>`).join('');
-  } else if (day.kind === 'foot') {
-    body = listHtml(k, [{ id: 'f1', name: 'Entraînement avec l’équipe', sub: esc(day.text) }]);
-  } else if (day.kind === 'recup') {
-    body = listHtml(k, day.items.map(it => it.ex
-      ? { id: it.id, name: it.txt, sub: esc(EXD[it.ex].tip || ''), detail: () => exDetail(k, { id: it.id, ex: it.ex, alts: [], kind: 'recup' }, it.ex, { sets: 1, reps: '20 min', rest: 0 }) }
-      : { id: it.id, name: it.txt, sub: 'Tiens chaque position sans forcer', detail: () => `<ul class="plain">${it.list.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` }));
-  } else if (day.kind === 'sunday') {
-    const m = day.match, t = day.tech;
-    title = 'Match ou technique'; sub = '';
-    body = `<h2 class="sec">Si tu as match</h2>` + listHtml(k, [{ id: 'm1', name: 'Match', sub: 'Avant, échauffement, après',
-      detail: () => `<h4>Avant</h4><ul class="plain">${m.before.map(x => `<li>${esc(x)}</li>`).join('')}</ul><h4>Échauffement</h4><ul class="plain">${DATA.warmup.match.map(x => `<li>${esc(x)}</li>`).join('')}</ul><h4>Après</h4><ul class="plain">${m.after.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` }])
-      + `<h2 class="sec">Sinon : technique <small>${esc(t.dur)}</small></h2>`
-      + (t.place ? `<p class="note">Matériel : ${esc(t.place.charAt(0).toLowerCase() + t.place.slice(1))}.</p>` : '')
-      + listHtml(k, [warmRow(t.warm)].concat(slotRows(k, t.slots, info)));
-  }
-  const done = dayDone(k);
-  view.innerHTML = `${weekStrip()}
-    <header class="head"><p class="over">${overline(k)}</p><h1>${esc(title)}</h1>${sub ? `<p class="sub">${sub}</p>` : ''}</header>
-    ${done ? `<p class="fin">${I.check}<span>${day.kind === 'foot' ? 'Entraînement fait.' : day.kind === 'recup' ? 'Récup faite.' : k === 'dimanche' && checked(d, 'm1') ? 'Match joué.' : 'Séance terminée.'} Bien joué&nbsp;!</span></p>` : ''}
-    ${notes.map(n => `<p class="note">${esc(n)}</p>`).join('')}
-    ${body}`;
-  playFig();
+let trackRaf = 0;
+function onTrack() {
+  cancelAnimationFrame(trackRaf);
+  trackRaf = requestAnimationFrame(() => {
+    const tr = document.getElementById('track'); if (!tr || !SH) return;
+    const i = Math.max(0, Math.min(SH.deck.length - 1, Math.round(tr.scrollLeft / tr.clientWidth)));
+    if (i !== SH.i) { SH.i = i; syncSheet(); }
+  });
+}
+const smooth = () => { try { return !matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return true; } };
+function goCard(i) { const tr = document.getElementById('track'); if (tr) tr.scrollTo({ left: i * tr.clientWidth, behavior: smooth() ? 'smooth' : 'auto' }); }
+function openSheet(which, i) {
+  SH = { k: selDay, which, i };
+  document.body.classList.add('sheet-on');
+  sheetEl().setAttribute('aria-hidden', 'false');
+  sheetEl().classList.add('on');
+  renderSheet();
+}
+function closeSheet() {
+  cancelAnimationFrame(figRaf);
+  sheetEl().classList.remove('on');
+  sheetEl().setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('sheet-on');
+  SH = null;
+  rerender();
+  setTimeout(() => { if (!SH) sheetEl().innerHTML = ''; }, 350);
 }
 
 /* ---------------- REPAS ---------------- */
 function qtyLabel(f, q) {
-  const x = F(f);
-  const n = s => esc(s.replace(' (poids cru)', ''));
+  const x = F(f), n = s => esc(s.replace(' (poids cru)', ''));
   if (x.per === 'g') return `<b>${q}&nbsp;g</b> ${n(x.n)}`;
   if (x.unit) return `<b>${q} ${esc(x.unit)}${q > 1 && !/\./.test(x.unit) ? 's' : ''}</b> ${n(x.n)}`;
   return `<b>${q}</b> ${n(q > 1 && x.pl ? x.pl : x.n)}`;
 }
 function renderRepas() {
   const dn = nomJour(selDay), r = mealsFor(dn);
-  view.innerHTML = `${weekStrip()}
-    <header class="head"><p class="over">${overline(selDay)}</p><h1>Repas</h1><p class="sub">Environ ${fr0(r.md.target)}&nbsp;kcal</p></header>
-    ${r.meals.map(m => `<section class="meal"><h2>${esc(m.name)}</h2>${m.title ? `<p class="dish">${esc(m.title)}</p>` : ''}<ul>${Object.keys(m.items).map(f => `<li>${qtyLabel(f, m.items[f])}</li>`).join('')}</ul></section>`).join('')}
-    ${dn === 'Samedi' || dn === 'Dimanche' ? '<p class="note">Match le lendemain : ajoute 40&nbsp;g de pâtes au dîner. Jour de match : repas 3&nbsp;h avant.</p>' : ''}
-    <p class="note">Poulet, pâtes et riz pesés crus. Une seule whey par jour.</p>
-    <ul class="list mt">${`<li class="row${shopOpen ? ' open' : ''}"><span class="lead">${I.cart}</span><button type="button" class="rt" data-shopopen="1" aria-expanded="${shopOpen}"><span class="nm">Liste de courses</span><span class="sb">Pour toute la semaine</span>${I.chev}</button>${shopOpen ? `<div class="det">${coursesHtml()}</div>` : ''}</li>`}</ul>`;
+  view.innerHTML = band(`${selDay === todayKey() ? '<p class="when">Aujourd’hui</p>' : ''}<h1 class="xd">${dn}</h1><p class="what">Repas</p><p class="meta">Environ ${fr0(r.md.target)}&nbsp;kcal</p>`)
+    + `<div class="page"><section class="lineup meals">${r.meals.map(m => `<div class="meal"><h2>${esc(m.name)}</h2>${m.title ? `<p class="dish">${esc(m.title)}</p>` : ''}<ul>${Object.keys(m.items).map(f => `<li>${qtyLabel(f, m.items[f])}</li>`).join('')}</ul></div>`).join('')}</section>
+    ${dn === 'Samedi' || dn === 'Dimanche' ? '<p class="foot">Match le lendemain : ajoute 40&nbsp;g de pâtes au dîner. Jour de match : repas 3&nbsp;h avant.</p>' : ''}
+    <p class="foot">Poulet, pâtes et riz pesés crus. Une seule whey par jour.</p>
+    <section class="lineup"><button type="button" class="row" data-shopopen="1" aria-expanded="${shopOpen}"><span class="num ic">${I.cart}</span><span class="tx"><b>Liste de courses</b><small>Pour toute la semaine</small></span>${I.chev}</button>${shopOpen ? `<div class="shop-in">${coursesHtml()}</div>` : ''}</section></div>`;
 }
 const GROUPS = [['Viande, poisson, œufs', ['poulet', 'oeuf', 'meuniere', 'thon', 'sardines']], ['Laitier, whey', ['skyr', 'whey']], ['Féculents', ['pates', 'riz', 'wedges', 'avoine', 'pain']], ['Fruits et légumes', ['banane', 'fruit', 'tomate', 'salade', 'legumes']], ['Épicerie', ['sauce', 'amandes', 'huile', 'miel']]];
 function buyText(f, q) {
@@ -168,7 +227,7 @@ function coursesHtml() {
   const tot = {};
   ORDER.forEach(k => mealsFor(nomJour(k)).meals.forEach(m => { for (const f in m.items) tot[f] = (tot[f] || 0) + m.items[f]; }));
   return GROUPS.map(([g, list]) => {
-    const rows = list.filter(f => tot[f]).map(f => { const on = !!S.shop.checked[f]; return `<li class="shop${on ? ' on' : ''}"><button type="button" class="ck sm" data-shop="${f}" aria-pressed="${on}" aria-label="${esc(F(f).n)}">${I.check}</button><span class="nm">${esc((tot[f] > 1 && F(f).pl ? F(f).pl : F(f).n).replace(/ \(.*\)$/, ''))}</span><span class="q">${buyText(f, tot[f])}</span></li>`; }).join('');
-    return rows ? `<h4>${g}</h4><ul class="shopl">${rows}</ul>` : '';
+    const rows = list.filter(f => tot[f]).map(f => { const on = !!S.shop.checked[f]; return `<li class="shop${on ? ' on' : ''}"><button type="button" class="tick sm" data-shop="${f}" aria-pressed="${on}" aria-label="${esc(F(f).n)}">${I.check}</button><span class="nm">${esc((tot[f] > 1 && F(f).pl ? F(f).pl : F(f).n).replace(/ \(.*\)$/, ''))}</span><span class="q">${buyText(f, tot[f])}</span></li>`; }).join('');
+    return rows ? `<h3>${g}</h3><ul class="shopl">${rows}</ul>` : '';
   }).join('') + (Object.keys(S.shop.checked).length ? '<button type="button" class="lnk" data-shopreset="1"><span>Tout décocher</span></button>' : '');
 }

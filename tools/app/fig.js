@@ -36,16 +36,16 @@ function rigApply(svg, R, P) {
     }
   });
 }
-function figHtml(slug) {
+function figHtml(slug) {   // le « tableau » : terrain rayé, dessin à la craie
   const e = EXD[slug];
-  if (e.dia) return `<div class="fig">${e.dia}</div>`;
-  if (e.rig) return `<div class="fig"><svg data-rig="${slug}" viewBox="${e.rig.vb.join(' ')}" aria-hidden="true">${rigMarkup(e.rig, rigFrame(e.rig, 0))}</svg></div>`;
-  return `<div class="fig2"><figure>${e.a}<figcaption>${esc(e.ca)}</figcaption></figure><figure>${e.b}<figcaption>${esc(e.cb)}</figcaption></figure></div>`;
+  if (e.dia) return `<div class="board dia-b">${e.dia}</div>`;
+  if (e.rig) return `<div class="board"><svg data-rig="${slug}" viewBox="${e.rig.vb.join(' ')}" aria-hidden="true">${rigMarkup(e.rig, rigFrame(e.rig, 0))}</svg></div>`;
+  return `<div class="board two"><figure>${e.a}<figcaption>${esc(e.ca)}</figcaption></figure><figure>${e.b}<figcaption>${esc(e.cb)}</figcaption></figure></div>`;
 }
 let figRaf = 0;
-function playFig() {
+function playFig(svg) {
   cancelAnimationFrame(figRaf);
-  const svg = document.querySelector('svg[data-rig]'); if (!svg) return;
+  if (!svg) return;
   const R = EXD[svg.dataset.rig].rig;
   try { if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; } catch (e) {}
   const HOLD = 550, MOVE = 1300, PER = 2 * (HOLD + MOVE), T0 = performance.now();

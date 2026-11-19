@@ -7,19 +7,21 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="N°10">
 <meta name="description" content="Numéro 10 : ton programme de muscu, de vitesse et de technique, et tes repas.">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="color-scheme" content="light dark">
-<meta name="theme-color" content="#F2F2F7">
+<meta name="theme-color" content="#14603D">
 <title>Numéro 10</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
+<link rel="preload" href="fonts/archivo-latin-wdth-normal.woff2" as="font" type="font/woff2" crossorigin>
 <style>
 /*CSS*/
 </style>
 </head>
 <body>
 <main id="view" aria-live="polite"></main>
+<section id="sheet" role="dialog" aria-modal="true" aria-label="Exercice" aria-hidden="true"></section>
 <nav class="nav" aria-label="Sections"><div>
   <button type="button" data-tab="seance"><svg viewBox="0 0 24 24"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg>Séance</button>
   <button type="button" data-tab="repas"><svg viewBox="0 0 24 24"><path d="M7 3v8a2 2 0 0 0 2 2v8M5 3v5M9 3v5M17 21V3c-2.5 1-4 3.5-4 7v3h4"/></svg>Repas</button>

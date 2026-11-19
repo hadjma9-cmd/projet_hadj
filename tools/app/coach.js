@@ -42,12 +42,12 @@ function coachSetupHtml() {
 function renderCoach() {
   const msgs = S.coach.msgs, empty = !msgs.length;
   view.className = '';
-  view.innerHTML = `<header class="head"><p class="over">Une question ? Demande.</p><h1>Coach</h1></header>
+  view.innerHTML = band(`<h1 class="xd">Coach</h1><p class="what">Une question ? Demande.</p><p class="meta">Un exercice, une douleur, un repas</p>`, false) + `<div class="page pc">
     <div id="coachnote"></div>
-    ${empty ? `<ul class="list quick">${QUICK.map(q => `<li class="row"><button type="button" class="rt" data-q="${esc(q)}"><span class="nm">${esc(q)}</span>${I.chev}</button></li>`).join('')}</ul>` : ''}
+    ${empty ? `<section class="lineup quick">${QUICK.map(q => `<button type="button" class="row" data-q="${esc(q)}"><span class="tx"><b>${esc(q)}</b></span>${I.chev}</button>`).join('')}</section>` : ''}
     <div class="chat" id="chat">${msgs.map(m => m.role === 'user' ? `<div class="msg user">${esc(m.content)}</div>` : `<div class="msg bot">${md(m.content)}</div>`).join('')}</div>
     ${empty ? '' : '<button type="button" class="lnk center" id="newchat"><span>Nouvelle conversation</span></button>'}
-    <div class="coach-pad"></div>
+    <div class="coach-pad"></div></div>
     <div class="composer"><form id="composer"><textarea id="ask" rows="1" placeholder="Écris ta question…" aria-label="Ta question"></textarea><button type="submit" aria-label="Envoyer">${I.send}</button></form></div>`;
   detectCoach().then(mode => {
     const note = document.getElementById('coachnote'); if (!note) return;
