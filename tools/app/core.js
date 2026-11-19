@@ -133,13 +133,14 @@ function dayIds(k) {
   const day = dayByKey(k);
   if (day.kind === 'foot') return ['f1'];
   if (day.kind === 'recup') return day.items.map(it => it.id);
-  if (day.kind === 'sunday') return dayByKey('lundi').slots.map(s => s.id);
+  if (day.kind === 'sunday') return (S.match[weekKey()] ? ['m1'] : []).concat(dayByKey('mardi').slots.map(s => s.id));
+  if (day.kind === 'rest') return [];
   return day.slots.map(s => s.id);
 }
 function dayDone(k) {
   const d = dateOf(k);
-  if (k === 'dimanche' && checked(d, 'm1')) return true;
-  return dayIds(k).every(id => checked(d, id));
+  const ids = dayIds(k);
+  return ids.length > 0 && ids.every(id => checked(d, id));
 }
 function toggleCheck(k, id) {
   const d = dateOf(k), was = dayDone(k);
