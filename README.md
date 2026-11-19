@@ -1,11 +1,11 @@
 # Numéro 10 · prépa foot
 
-App web (iPhone) de préparation physique d'un milieu offensif de foot à 7 : tableau de bord, mode séance exercice par exercice, check forme qui adapte la séance, XP, niveaux et badges, tests de vitesse, repas et courses, coach IA.
+App web (iPhone), version simple : la séance du jour, chaque exercice avec son dessin, son exécution, un conseil et ce qu'il faut éviter, un mode séance avec chrono de repos, les repas, la liste de courses et un coach IA.
 
 - `public/` : le site publié par Netlify (`index.html`, polices dans `fonts/`, icônes, mode hors ligne `sw.js`).
 - `netlify/edge-functions/coach.js` : relaie les questions du coach vers l'API Claude.
 - `tools/` : génère `public/index.html`. Après une modification : `python3 tools/build.py`.
-  - `program.py` : exercices, semaine type, cycle de 12 semaines (blocs, semaines allégées, tests), check forme.
+  - `program.py` : exercices (exécution, conseil, à éviter), semaine type, progression sur 12 semaines.
   - `plan.py` + `foods.py` : repas par type de journée, calories et protéines.
   - `ex2.py`, `ex3.py` (dessins des exercices), `drills.py` (schémas terrain vus de dessus), `musclemap.py`.
   - `app/` : l'interface (`style.css`, `shell.html`, `core.js`, `ui.js`, `workout.js`, `coach.js`, `main.js`).

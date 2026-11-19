@@ -41,13 +41,11 @@ try { var t = (JSON.parse(localStorage.getItem('n10-v3') || '{}').set || {}).the
   <div class="tm-btns"><button type="button" id="tplus">+15 s</button><button type="button" id="tskip">Passer</button></div>
 </div></div>
 <div id="sheet" aria-modal="true" role="dialog"><div class="scrim" data-close="1"></div><div class="panel" id="sheetp"></div></div>
-<div class="celebrate" id="cele" role="dialog" aria-modal="true"></div>
 <div class="toast" id="toast" role="status"></div>
 <nav class="nav" aria-label="Sections"><div>
-  <button type="button" data-tab="accueil"><svg viewBox="0 0 24 24"><path d="M3.5 10.5 12 4l8.5 6.5V20a1 1 0 0 1-1 1H15v-6H9v6H4.5a1 1 0 0 1-1-1z"/></svg>Accueil</button>
+  <button type="button" data-tab="accueil"><svg viewBox="0 0 24 24"><path d="M3.5 10.5 12 4l8.5 6.5V20a1 1 0 0 1-1 1H15v-6H9v6H4.5a1 1 0 0 1-1-1z"/></svg>Aujourd’hui</button>
   <button type="button" data-tab="programme"><svg viewBox="0 0 24 24"><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/></svg>Programme</button>
   <button type="button" data-tab="repas"><svg viewBox="0 0 24 24"><path d="M7 3v8a2 2 0 0 0 2 2v8M5 3v5M9 3v5M17 21V3c-2.5 1-4 3.5-4 7v3h4"/></svg>Repas</button>
-  <button type="button" data-tab="progres"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M7 15l4-4 3 3 5-6"/></svg>Progrès</button>
   <button type="button" data-tab="coach"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8.5 10.5h.01M12 10.5h.01M15.5 10.5h.01"/></svg>Coach</button>
 </div></nav>
 <script>

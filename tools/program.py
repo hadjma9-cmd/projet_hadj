@@ -27,6 +27,7 @@ EFFORT = {
 # qual : qualités travaillées (pour les exercices de terrain)
 # step : pas de charge dans l'app ; neg=True : contrepoids (moins = plus dur)
 SHORT = {
+    'shoulder-press': 'Haltères', 'leg-curl': 'Assis', 'lying-leg-curl': 'Allongé', 'crunch': 'Crunch',
     'db-bench': 'Haltères', 'chest-press': 'Machine', 'smith-bench': 'Barre guidée',
     'assisted-pullup': 'Machine assistée', 'smith-inverted-row': 'Australiennes', 'db-pullover': 'Pull-over',
     'machine-shoulder-press': 'Machine', 'standing-db-press': 'Debout 2 bras',
@@ -40,7 +41,7 @@ SHORT = {
     'dips': 'Barres', 'assisted-dip-machine': 'Machine assistée', 'close-grip-db-press': 'Haltères serrés',
 }
 
-KEEP = ['db-bench', 'chest-press', 'smith-bench', 'assisted-pullup', 'smith-inverted-row', 'db-pullover',
+KEEP = ['shoulder-press', 'leg-curl', 'lying-leg-curl', 'crunch', 'db-bench', 'chest-press', 'smith-bench', 'assisted-pullup', 'smith-inverted-row', 'db-pullover',
         'machine-shoulder-press', 'standing-db-press', 'db-row', 'machine-row', 'incline-db-row',
         'dead-bug', 'plank', 'reverse-crunch', 'flutter-kicks', 'side-plank', 'bicycle-crunch', 'leg-raise',
         'goblet-squat', 'smith-squat', 'leg-press', 'rdl', 'smith-rdl', 'db-hip-thrust', 'step-up',
@@ -291,115 +292,142 @@ for k, e in EX.items():
     if k in ('db-bench', 'incline-press', 'rdl', 'step-up', 'lateral-step-up', 'standing-db-press', 'incline-db-row', 'close-grip-db-press'):
         e['pair'] = True
 
-# ---------------------------------------------------------------- séances
-def S(id, ex, alts, kind, b1, b2, b3, test=False, note=None):
-    """b1/b2/b3 : (séries, répétitions, repos en s, effort) pour les semaines 1–4, 5–8, 9–12 (None = pas dans ce bloc)."""
-    return dict(id=id, ex=ex, alts=alts, kind=kind, p=[b1, b2, b3], test=test, note=note)
+# ---------------------------------------------------------------- séances (version simple)
+def S(id, ex, alts, kind, b1, b2, b3, note=None):
+    """b1/b2/b3 : (séries, répétitions, repos en s, effort) pour les semaines 1–4, 5–8, 9–12."""
+    return dict(id=id, ex=ex, alts=alts, kind=kind, p=[b1, b2, b3], test=False, note=note)
 
 WARMUP = {
-    'haut': ['5 min de vélo ou de rameur, rythme facile', '10 rotations d’épaules vers l’avant, puis vers l’arrière',
-             '10 pompes (mains sur un banc si besoin)', '1 série légère du premier exercice de force (la moitié de la charge)'],
-    'bas': ['5 min de vélo, rythme facile', '10 squats au poids du corps', '10 balancements de jambe d’avant en arrière, puis de côté, par jambe',
-            '10 petits sauts sur place, souples', '1 série légère du squat (la moitié de la charge)'],
-    'vitesse': ['3 min de footing léger', 'Montées de genoux, puis talons-fesses : 2 × 15 m chacun', 'Pas chassés : 2 × 15 m de chaque côté',
-                'Skippings : 2 × 15 m', '3 accélérations progressives de 30 m (60 %, 75 %, 90 %)'],
-    'technique': ['5 min de conduite libre et de jonglages', 'Balancements de jambes et ouvertures de hanche : 10 par jambe',
-                  '2 accélérations de 20 m avec ballon, à 70 %'],
-    'match': ['5 min de footing léger avec ouvertures et fermetures de hanche', 'Mobilité : balancements de jambes, talons-fesses, montées de genoux',
-              '5 min de passes et contrôles avec ballon', '3 accélérations progressives de 20 m (60 %, 80 %, 90 %)',
-              '3 changements de direction à 80 %', '2 sprints de 10 m à fond, puis on garde la chaleur jusqu’au coup d’envoi'],
+    'haut': ['5 min de vélo ou de rameur', 'Rotations des épaules : 10 vers l’avant, 10 vers l’arrière', '1 série légère du premier exercice'],
+    'bas': ['5 min de vélo', '10 squats sans charge', '10 balancements de jambe de chaque côté'],
+    'vitesse': ['5 min de footing léger', 'Montées de genoux et talons-fesses : 2 × 15 m', '3 accélérations sur 30 m, de plus en plus vite'],
+    'technique': ['5 min de conduite de balle tranquille', '10 balancements de jambe de chaque côté'],
+    'match': ['5 min de footing léger', 'Montées de genoux, talons-fesses, pas chassés', '5 min de passes et de contrôles', '3 accélérations de 20 m, de plus en plus vite'],
 }
 
 DAYS = [
-    dict(key='lundi', dow=1, kind='gym', name='Haut du corps A', tag='Haut A', theme='Force & duels', col='hautA', dur='50 min', warm='haut',
-         goal='Gagner tes duels : pousser, tirer, tenir l’adversaire à distance, avec un tronc solide.',
+    dict(key='lundi', dow=1, kind='gym', name='Haut du corps A', tag='Haut A', theme='Pecs, dos, épaules', col='hautA', dur='45 min', warm='haut',
          slots=[
-            S('l1', 'mb-chest-throw', ['explosive-pushup'], 'power', (3, '5', 60, 'Explosif'), (3, '5', 60, 'Explosif'), (4, '4', 75, 'Explosif')),
-            S('l2', 'db-bench', ['chest-press', 'smith-bench'], 'force', (3, '8–10', 120, '7/10'), (4, '6–8', 150, '8/10'), (3, '4–6', 180, '8/10')),
-            S('l3', 'assisted-pullup', ['smith-inverted-row', 'db-pullover'], 'force', (3, '6–8', 120, '7/10'), (4, '5–6', 150, '8/10'), (3, '4–6', 150, '8/10')),
-            S('l4', 'hk-press', ['machine-shoulder-press', 'standing-db-press'], 'force', (3, '8–10 par bras', 75, '7/10'), (3, '6–8 par bras', 90, '8/10'), (3, '6 par bras', 90, '8/10')),
-            S('l5', 'db-row', ['machine-row', 'incline-db-row'], 'force', (3, '8–10 par bras', 75, '7/10'), (4, '6–8 par bras', 90, '8/10'), (3, '6–8 par bras', 90, '8/10, tirage rapide')),
-            S('l6', 'dead-bug', ['reverse-crunch', 'flutter-kicks'], 'core', (2, '8 par côté', 45, 'Contrôle'), (3, '10 par côté', 45, 'Contrôle'), (3, '10 par côté, lent', 45, 'Contrôle')),
-            S('l7', 'suitcase-carry', ['side-plank'], 'core', (2, '20 m par côté', 60, '7/10'), (3, '20 m par côté', 60, '8/10'), (3, '25 m par côté', 60, '8/10')),
+            S('a1', 'db-bench', ['chest-press'], 'force', (3, '10', 120, '7/10'), (4, '8', 150, '8/10'), (4, '6', 150, '8/10')),
+            S('a2', 'assisted-pullup', ['smith-inverted-row'], 'force', (3, '8', 120, '7/10'), (4, '6–8', 150, '8/10'), (4, '5–6', 150, '8/10')),
+            S('a3', 'shoulder-press', ['machine-shoulder-press'], 'force', (3, '10', 90, '7/10'), (3, '8', 120, '8/10'), (3, '6–8', 120, '8/10')),
+            S('a4', 'db-row', ['machine-row'], 'force', (3, '10 par bras', 90, '7/10'), (3, '8 par bras', 90, '8/10'), (4, '8 par bras', 90, '8/10')),
+            S('a5', 'pushup', [], 'force', (2, '10', 60, '7/10'), (3, '12', 60, '8/10'), (3, '10, en poussant vite', 60, '8/10')),
+            S('a6', 'plank', [], 'core', (3, '30 s', 45, 'Contrôle'), (3, '40 s', 45, 'Contrôle'), (3, '45 s', 45, 'Contrôle')),
          ]),
-    dict(key='mardi', dow=2, kind='gym', name='Bas du corps', tag='Bas', theme='Force & puissance', col='bas', dur='55 min', warm='bas',
-         goal='Des jambes fortes et explosives, des ischios et des mollets blindés contre les blessures.',
-         note='Entraînement collectif demain : arrête chaque série avec 2 à 3 répétitions en réserve, jamais à l’échec.',
+    dict(key='mardi', dow=2, kind='gym', name='Bas du corps', tag='Bas', theme='Jambes, fessiers, ischios', col='bas', dur='50 min', warm='bas',
+         note='Foot demain : arrête chaque série avec 2 répétitions en réserve.',
          slots=[
-            S('m1', 'box-jump', ['cmj'], 'plyo', (3, '3', 90, 'Explosif'), (4, '3', 90, 'Explosif'), (4, '3', 90, 'Explosif')),
-            S('m2', 'goblet-squat', ['smith-squat', 'leg-press'], 'force', (3, '8–10', 120, '7/10'), (4, '6–8', 150, '8/10'), (3, '4–6', 180, '8/10, montée rapide')),
-            S('m3', 'rdl', ['smith-rdl', 'db-hip-thrust'], 'force', (3, '8–10', 120, '7/10'), (4, '6–8', 120, '8/10'), (3, '5–6', 150, '8/10')),
-            S('m4', 'step-up', ['lateral-step-up', 'single-leg-press'], 'force', (3, '8 par jambe', 75, '7/10'), (3, '6–8 par jambe', 90, '8/10'), (3, '5 par jambe', 90, 'Montée explosive')),
-            S('m5', 'nordic', ['leg-curl-ecc', 'single-leg-rdl'], 'prev', (2, '3–4', 120, 'Descente lente'), (3, '4–5', 120, 'Descente lente'), (2, '5', 120, 'Descente lente')),
-            S('m6', 'calf-raise-sl', ['machine-calf', 'seated-calf'], 'force', (3, '12 par jambe', 60, '7/10'), (3, '8–10 par jambe', 60, '8/10, avec haltère'), (3, '10 par jambe', 60, 'Montée explosive')),
+            S('b1', 'cmj', [], 'plyo', (3, '5', 90, 'À fond'), (4, '5', 90, 'À fond'), (4, '5', 90, 'À fond')),
+            S('b2', 'goblet-squat', ['leg-press'], 'force', (3, '10', 120, '7/10'), (4, '8', 150, '8/10'), (4, '6', 150, '8/10')),
+            S('b3', 'rdl', ['smith-rdl'], 'force', (3, '10', 120, '7/10'), (4, '8', 120, '8/10'), (4, '6–8', 150, '8/10')),
+            S('b4', 'step-up', [], 'force', (3, '8 par jambe', 90, '7/10'), (3, '8 par jambe', 90, '8/10'), (3, '6 par jambe', 90, '8/10')),
+            S('b5', 'leg-curl', ['lying-leg-curl'], 'force', (3, '10', 90, '7/10'), (3, '10', 90, '8/10'), (3, '8', 90, '8/10')),
+            S('b6', 'machine-calf', ['calf-raise-sl'], 'force', (3, '15', 60, '7/10'), (3, '12', 60, '8/10'), (3, '12', 60, '8/10')),
          ]),
-    dict(key='mercredi', dow=3, kind='foot', name='Entraînement collectif', tag='Foot', theme='Avec l’équipe', col='foot', dur='Selon ton club',
-         goal='Ta séance la plus importante de la semaine. Arrive frais, joue à fond.',
-         pre=[
-            S('w1', 'weak-foot-wall', [], 'ball', (2, '20 passes', 30, 'Qualité'), (2, '25 passes', 30, 'Qualité'), (2, '25 passes, 1 touche', 30, 'Qualité')),
-            S('w2', 'wall-control', [], 'ball', (2, '5 par côté', 30, 'Qualité'), (2, '8 par côté', 30, 'Qualité'), (2, '10 par côté', 30, 'Qualité')),
-         ]),
-    dict(key='jeudi', dow=4, kind='recup', name='Récupération', tag='Récup', theme='Récupérer & prévenir', col='recup', dur='35 min',
-         goal='Relancer la circulation, garder des hanches mobiles et blinder adducteurs et chevilles.',
+    dict(key='mercredi', dow=3, kind='foot', name='Entraînement collectif', tag='Foot', theme='Avec ton équipe', col='foot', dur='',
+         text='Ton entraînement avec l’équipe. Rien d’autre à faire aujourd’hui : arrive frais et joue à fond.'),
+    dict(key='jeudi', dow=4, kind='recup', name='Récupération', tag='Récup', theme='Vélo et étirements', col='recup', dur='30 min',
          items=[
-            dict(id='r1', ex='easy-bike', txt='Vélo facile 20 à 25 min (effort 3/10)'),
-            dict(id='r2', ex=None, txt='Mobilité 10 min', list=['Hanches en 90/90 : 2 × 30 s par côté', 'Fléchisseurs de hanche (genou au sol) : 2 × 30 s par côté',
-                                                                 'Mollets contre un mur : 2 × 30 s par jambe', 'Ischios, talon sur un banc : 2 × 30 s par jambe',
-                                                                 'Rotations du haut du dos à quatre pattes : 10 par côté']),
-            dict(id='r3', ex='copenhagen', txt='Copenhague', p=['2 × 15–20 s par côté, genou sur le banc', '3 × 20 s par côté, genou sur le banc', '3 × 20–25 s par côté, cheville sur le banc']),
-            dict(id='r4', ex='single-leg-balance', txt='Équilibre sur une jambe : 2 × 30 s par jambe'),
-            dict(id='r5', ex='calf-iso', txt='Mollets tenus : 2 × 30 s par jambe'),
-            dict(id='r6', ex='juggling', txt='Jonglages 10 min, sans forcer (bonus)'),
-            dict(id='r7', ex=None, txt='Ce soir : 8 h de sommeil, écran coupé 30 min avant'),
+            dict(id='r1', ex='easy-bike', txt='Vélo facile : 20 min'),
+            dict(id='r2', ex=None, txt='Étirements : 10 min', list=['Mollets contre un mur : 30 s par jambe', 'Arrière des cuisses, talon sur un banc : 30 s par jambe',
+                                                                     'Devant des cuisses, debout, talon vers les fesses : 30 s par jambe', 'Hanches, un genou au sol : 30 s par côté']),
          ]),
-    dict(key='vendredi', dow=5, kind='speed', name='Vitesse & appuis', tag='Vitesse', theme='Explosivité · freinages · changements de direction', col='vitesse',
-         dur='50 min', warm='vitesse', place='Terrain ou herbe, 30 m de long, 6 plots, un ballon',
-         goal='Gagner les 5 premiers mètres, freiner plus court, changer de direction plus vite que ton adversaire.',
+    dict(key='vendredi', dow=5, kind='speed', name='Vitesse', tag='Vitesse', theme='Sprints et changements de direction', col='vitesse', dur='40 min', warm='vitesse',
+         place='Un terrain, 6 plots, un ballon',
+         note='Match dimanche ? Fais 2 répétitions de moins sur chaque exercice.',
          slots=[
-            S('v1', 'pogo', [], 'plyo', (2, '10', 60, 'Réactif'), (2, '15', 60, 'Réactif'), (2, '15', 60, 'Réactif')),
-            S('v2', 'broad-jump', [], 'plyo', (3, '3', 90, 'Max'), (3, '3', 90, 'Max'), None, test=True),
-            S('v3', 'drop-jump', [], 'plyo', None, None, (3, '4', 90, 'Contact court')),
-            S('v4', 'skater', [], 'plyo', (2, '4 par côté', 60, 'Réception tenue 2 s'), (3, '4 par côté', 60, 'Plus loin'), (2, '4 par côté', 60, 'Rebond immédiat')),
-            S('v5', 'bounds', [], 'plyo', None, (2, '4 par jambe', 90, 'Max'), (3, '4 par jambe', 90, 'Max')),
-            S('v6', 'starts-10', [], 'sprint', (6, '10 m', 60, '90 %'), (6, '10 m', 75, '100 %'), (6, '10 m, départ sur signal', 75, '100 %'), test=True),
-            S('v7', 'sprint-20', ['hill-sprint'], 'sprint', (4, '20 m', 120, '90 %'), (5, '20 m', 150, '100 %'), (5, '20 m', 150, '100 %'), test=True),
-            S('v8', 'decel', [], 'cod', (4, '10 m + arrêt', 60, '70 %'), (5, '10 m + arrêt', 60, '85 %'), (5, '15 m + arrêt', 75, '100 %')),
-            S('v9', 'cut-45', [], 'cod', (6, '5 m + 5 m', 60, '75 %'), None, None),
-            S('v10', 'cod-505', [], 'cod', None, (4, '1 aller-retour', 90, '100 %'), None, test=True),
-            S('v11', 'reactive-agility', [], 'cod', None, None, (6, '1 réaction', 75, '100 %')),
-            S('v12', 'dribble-sprint', [], 'ball', (4, '20 m', 60, '90 %'), (4, '20 m', 60, '100 %'), (4, '20 m + crochet', 60, '100 %')),
+            S('v1', 'broad-jump', [], 'plyo', (3, '3', 90, 'À fond'), (3, '3', 90, 'À fond'), (3, '3', 90, 'À fond')),
+            S('v2', 'starts-10', [], 'sprint', (6, '10 m', 60, 'Vite'), (6, '10 m', 60, 'À fond'), (8, '10 m', 60, 'À fond')),
+            S('v3', 'sprint-20', [], 'sprint', (4, '20 m', 120, 'Vite'), (5, '20 m', 120, 'À fond'), (5, '20 m', 120, 'À fond')),
+            S('v4', 'decel', [], 'cod', (4, '10 m + arrêt', 60, 'Vite'), (5, '10 m + arrêt', 60, 'À fond'), (5, '10 m + arrêt', 60, 'À fond')),
+            S('v5', 'cut-45', [], 'cod', (6, '5 m + 5 m', 60, 'Vite'), (6, '5 m + 5 m', 60, 'À fond'), (8, '5 m + 5 m', 60, 'À fond')),
+            S('v6', 'dribble-sprint', [], 'ball', (4, '20 m', 60, 'Vite'), (4, '20 m', 60, 'À fond'), (4, '20 m', 60, 'À fond')),
          ]),
-    dict(key='samedi', dow=6, kind='gym', name='Haut du corps B', tag='Haut B', theme='Puissance & gainage', col='hautB', dur='50 min', warm='haut',
-         goal='De la puissance de rotation pour frapper et protéger le ballon, un gainage qui encaisse les contacts.',
+    dict(key='samedi', dow=6, kind='gym', name='Haut du corps B', tag='Haut B', theme='Pecs, dos, bras, abdos', col='hautB', dur='45 min', warm='haut',
+         note='Match demain ? 2 séries par exercice, sans forcer.',
          slots=[
-            S('s1', 'mb-rotation', ['db-woodchop'], 'power', (3, '5 par côté', 60, 'Explosif'), (3, '5 par côté', 60, 'Explosif'), (4, '4 par côté', 60, 'Explosif')),
-            S('s2', 'incline-press', ['smith-incline', 'pushup'], 'force', (3, '8–10', 120, '7/10'), (4, '6–8', 150, '8/10'), (3, '5–6', 150, '8/10')),
-            S('s3', 'assisted-pullup', ['smith-inverted-row', 'db-pullover'], 'force', (3, '6–8', 120, '7/10'), (3, '5–6', 150, '8/10'), (3, '4–6', 150, '8/10')),
-            S('s4', 'dips', ['assisted-dip-machine', 'close-grip-db-press'], 'force', (3, '6–8', 120, '7/10'), (3, '6–10', 120, '8/10'), (3, '5–8', 120, '8/10')),
-            S('s5', 'machine-row', ['incline-db-row', 'smith-inverted-row'], 'force', (3, '10', 90, '7/10'), (3, '8', 90, '8/10'), (3, '6–8', 90, '8/10, tirage rapide')),
-            S('s6', 'shoulder-tap-plank', ['plank', 'dead-bug'], 'core', (2, '8 par côté', 45, 'Contrôle'), (3, '10 par côté', 45, 'Contrôle'), (3, '12 par côté', 45, 'Contrôle')),
-            S('s7', 'side-plank', ['plank', 'bicycle-crunch'], 'core', (2, '20–30 s par côté', 30, 'Contrôle'), (3, '30 s par côté', 30, 'Contrôle'), (3, '40 s par côté', 30, 'Contrôle')),
-            S('s8', 'leg-raise', ['reverse-crunch', 'flutter-kicks'], 'core', (2, '10–12', 45, 'Contrôle'), (3, '12–15', 45, 'Contrôle'), (3, '15', 45, 'Contrôle')),
+            S('c1', 'incline-press', ['smith-incline'], 'force', (3, '10', 120, '7/10'), (4, '8', 150, '8/10'), (4, '6', 150, '8/10')),
+            S('c2', 'assisted-pullup', ['smith-inverted-row'], 'force', (3, '8', 120, '7/10'), (3, '6–8', 120, '8/10'), (4, '5–6', 150, '8/10')),
+            S('c3', 'dips', ['assisted-dip-machine'], 'force', (3, '8', 90, '7/10'), (3, '10', 90, '8/10'), (3, '10', 90, '8/10')),
+            S('c4', 'machine-row', ['db-row'], 'force', (3, '10', 90, '7/10'), (3, '10', 90, '8/10'), (4, '8', 90, '8/10')),
+            S('c5', 'leg-raise', [], 'core', (3, '12', 45, 'Contrôle'), (3, '15', 45, 'Contrôle'), (3, '15', 45, 'Contrôle')),
+            S('c6', 'crunch', [], 'core', (3, '15', 45, 'Contrôle'), (3, '20', 45, 'Contrôle'), (3, '20', 45, 'Contrôle')),
          ]),
-    dict(key='dimanche', dow=0, kind='sunday', name='Match ou technique', tag='Dimanche', theme='Selon ton calendrier', col='match', dur='',
-         goal='Jour de match : arrive préparé. Sans match : séance technique avec ballon.',
-         match=dict(name='Jour de match', tag='Match', col='match', theme='Prépare-toi, joue, récupère',
-                    before=['Repas d’avant-match 3 h avant le coup d’envoi (voir Repas)', 'Collation 1 h avant : une banane, ou du pain avec du miel',
-                            '500 ml d’eau dans les 2 h qui précèdent', 'Échauffement de 20 min (liste ci-dessous)'],
-                    after=['Dans l’heure : ta dose de whey et un fruit, puis un vrai repas', 'Bois au moins 1 L d’eau dans les 2 h',
-                           '5 min de marche et de mobilité légère', 'Couché tôt : le sommeil est ta meilleure récup']),
-         tech=dict(name='Technique & conduite de balle', tag='Technique', col='tech', theme='Conduite · contrôle orienté · pied faible', dur='50 min', warm='technique',
-                   place='Un ballon, 8 plots, un mur, un but si possible',
+    dict(key='dimanche', dow=0, kind='sunday', name='Match ou technique', tag='Dimanche', theme='', col='match', dur='',
+         match=dict(name='Jour de match', tag='Match', col='match', theme='Prépare-toi bien',
+                    before=['Repas 3 h avant le match (pâtes et poulet)', 'Une banane 1 h avant', 'Échauffement de 15 à 20 min'],
+                    after=['Mange un vrai repas dans l’heure (avec ta whey)', '5 min d’étirements', 'Couche-toi tôt']),
+         tech=dict(name='Technique', tag='Technique', col='tech', theme='Ballon : conduite, contrôle, pied faible', dur='40 min', warm='technique',
+                   place='Un ballon, 6 plots, un mur',
                    slots=[
-                      S('d1', 'dribble-slalom', [], 'ball', (4, '1 passage par pied', 45, 'Propre'), (5, '1 passage par pied', 45, 'Rapide'), (5, '1 passage par pied', 45, 'Vitesse match')),
-                      S('d2', 'wall-control', [], 'ball', (3, '10 par côté', 45, 'Qualité'), (3, '10 par côté, extérieur', 45, 'Qualité'), (3, '10 par côté, en 2 touches', 45, 'Vitesse')),
-                      S('d3', 'weak-foot-wall', [], 'ball', (3, '20 passes', 30, 'Qualité'), (3, '25 passes', 30, 'Qualité'), (3, '25 passes en 1 touche', 30, 'Qualité')),
-                      S('d4', 'juggling', [], 'ball', (1, '5 min', 0, 'Record'), (1, '5 min', 0, 'Record'), (1, '5 min', 0, 'Record')),
-                      S('d5', 'dribble-shot', [], 'ball', (6, '1 action', 30, 'Précision'), (8, '1 action', 30, 'Précision'), (8, '1 action, pied faible une fois sur deux', 30, 'Vitesse')),
-                      S('d6', 'dribble-intervals', [], 'ball', (1, '8 × 15 s / 15 s', 120, 'Régulier'), (2, '8 × 15 s / 15 s', 120, 'Régulier'), (2, '10 × 15 s / 15 s', 120, 'Régulier'),
-                        note='À partir de la semaine 3'),
+                      S('t1', 'dribble-slalom', [], 'ball', (4, '1 passage par pied', 45, 'Propre'), (5, '1 passage par pied', 45, 'Vite'), (5, '1 passage par pied', 45, 'Vite')),
+                      S('t2', 'weak-foot-wall', [], 'ball', (3, '20 passes', 30, 'Propre'), (3, '25 passes', 30, 'Propre'), (3, '25 passes', 30, 'Propre')),
+                      S('t3', 'wall-control', [], 'ball', (3, '10 par côté', 30, 'Propre'), (3, '10 par côté', 30, 'Propre'), (3, '10 par côté', 30, 'Vite')),
+                      S('t4', 'juggling', [], 'ball', (1, '5 min', 0, 'Record'), (1, '5 min', 0, 'Record'), (1, '5 min', 0, 'Record')),
                    ])),
 ]
+
+# textes simples : exécution, conseil, à éviter
+TEXT = {
+ 'db-bench': ('Allongé sur un banc plat, un haltère dans chaque main au-dessus de la poitrine. Descends les haltères sur les côtés de la poitrine, puis pousse vers le haut.',
+              'Pieds bien à plat, omoplates serrées contre le banc.', 'Écarter les coudes à l’horizontale : garde-les un peu rentrés.'),
+ 'chest-press': (None, 'Règle le siège pour avoir les poignées à hauteur de poitrine.', None),
+ 'assisted-pullup': ('Genoux sur la plateforme, mains un peu plus larges que les épaules. Tire jusqu’à passer le menton au-dessus des poignées, puis redescends bras tendus.',
+                     'Plus il y a de contrepoids, plus c’est facile. Enlève 5 kg quand tu fais toutes tes répétitions.', 'Te balancer ou donner des coups de reins pour monter.'),
+ 'smith-inverted-row': (None, 'Corps droit des talons aux épaules. Plus la barre est basse, plus c’est dur.', None),
+ 'shoulder-press': (None, 'Garde le dos collé au dossier et le ventre serré.', None),
+ 'machine-shoulder-press': (None, 'Poignées à hauteur des épaules au départ.', None),
+ 'db-row': (None, 'Tire le coude vers la hanche, pas vers le plafond.', None),
+ 'machine-row': (None, 'Serre les omoplates en fin de mouvement, 1 seconde.', None),
+ 'pushup': (None, 'Corps droit comme une planche, mains sous les épaules.', None),
+ 'plank': (None, 'Serre les fesses et le ventre, et respire normalement.', None),
+ 'cmj': ('Pieds écartés à largeur de hanches. Plie vite les genoux en lançant les bras en arrière, puis saute le plus haut possible en lançant les bras vers le haut.',
+         'Atterris en douceur, genoux souples, puis prends 2 secondes avant le saut suivant.', 'Genoux qui rentrent vers l’intérieur à l’atterrissage.'),
+ 'goblet-squat': ('Tiens un haltère contre la poitrine, pieds un peu plus larges que les épaules. Descends comme pour t’asseoir, cuisses parallèles au sol, puis remonte.',
+                  'Talons collés au sol, genoux dans l’axe des pieds.', 'Arrondir le dos ou décoller les talons.'),
+ 'leg-press': (None, 'Ne verrouille jamais les genoux en haut.', None),
+ 'rdl': (None, 'Pense à pousser les fesses en arrière, pas à descendre le dos.', None),
+ 'smith-rdl': (None, 'Pense à pousser les fesses en arrière.', None),
+ 'step-up': ('Face à un banc stable, un haltère dans chaque main. Pose tout le pied sur le banc et monte en poussant sur ce pied, puis redescends doucement.',
+             'Pousse sur le talon du pied posé sur le banc, pas sur l’autre jambe.', 'Te pencher en avant ou t’aider de la jambe au sol.'),
+ 'leg-curl': (None, 'Redescends lentement, en 3 secondes : ça protège tes ischios.', None),
+ 'lying-leg-curl': (None, 'Redescends lentement, en 3 secondes.', None),
+ 'machine-calf': (None, 'Monte le plus haut possible et tiens 1 seconde en haut.', None),
+ 'calf-raise-sl': (None, 'Une main sur un support pour l’équilibre.', None),
+ 'easy-bike': ('Vélo d’appartement ou de salle, résistance légère, 20 minutes.', 'Tu dois pouvoir parler sans être essoufflé.', 'Accélérer : aujourd’hui, on récupère.'),
+ 'broad-jump': (None, 'Atterris sur les deux pieds et tiens 2 secondes sans bouger.', None),
+ 'starts-10': ('Départ debout, un pied devant. Penche-toi en avant et pousse fort dans le sol pendant 10 m. Reviens en marchant.',
+               'Reste penché les 5 premiers mètres, et pousse fort avec les bras.', 'Te redresser tout de suite.'),
+ 'sprint-20': ('Plots à 0 et à 20 m. Pars arrêté et sprinte jusqu’au plot des 20 m. Reviens en marchant.',
+               'Prends le repos en entier : chaque sprint doit être aussi rapide que le premier.', 'Raccourcir le repos.'),
+ 'decel': (None, 'Petits pas, hanches basses, comme pour t’asseoir.', None),
+ 'cut-45': (None, 'Baisse-toi juste avant le plot et pousse sur le pied extérieur.', None),
+ 'dribble-sprint': (None, 'Touches longues quand c’est libre, lève la tête entre les touches.', None),
+ 'incline-press': (None, 'Banc incliné à 30° environ, pas plus.', None),
+ 'smith-incline': (None, 'Banc incliné à 30° environ.', None),
+ 'dips': (None, 'Descends jusqu’à avoir les coudes à angle droit, pas plus bas.', None),
+ 'assisted-dip-machine': (None, 'Plus de contrepoids = plus facile.', None),
+ 'leg-raise': (None, 'Plaque le bas du dos au sol pendant tout le mouvement.', None),
+ 'crunch': (None, 'Décolle seulement les épaules, regard vers le plafond.', None),
+ 'dribble-slalom': ('6 plots en ligne, espacés d’un mètre. Slalome entre les plots avec le ballon, une fois du pied droit, une fois du pied gauche.',
+                    'Petites touches, le ballon reste près du pied.', 'Aller trop vite et toucher les plots.'),
+ 'weak-foot-wall': ('À 4 ou 5 m d’un mur, fais des passes uniquement avec ton pied faible : contrôle, puis passe.',
+                    'Recule d’un mètre quand ça devient facile.', 'Repasser sur ton bon pied.'),
+ 'wall-control': ('Passe au mur. Quand le ballon revient, contrôle-le vers la droite ou vers la gauche pour l’emmener dans ta course, puis repasse.',
+                  'Le premier contrôle doit déjà t’emmener vers l’avant.', 'Contrôler le ballon sous tes pieds.'),
+ 'juggling': ('Jongle avec les pieds, en alternant droit et gauche.', 'Compte ta meilleure série : c’est ton record à battre.', 'Jongler uniquement du bon pied.'),
+}
+for k, (how, tip, err) in TEXT.items():
+    if k not in EX: continue
+    if how: EX[k]['how'] = how
+    if err: EX[k]['err'] = err
+    EX[k]['tip'] = tip
+EX['starts-10']['name'] = 'Sprint 10 m'
+EX['decel']['name'] = 'Freinage'
+EX['cut-45']['name'] = 'Changements de direction'
+EX['dribble-sprint']['name'] = 'Conduite de balle rapide'
+EX['plank']['reps'] = '30 s'
 
 READY = [
     dict(k='sleep', q='Ta nuit ?', a=[['Mauvaise', 'moins de 6 h'], ['Moyenne', '6 à 7 h'], ['Bonne', '7 h ou plus']]),
@@ -416,6 +444,15 @@ TESTDEF = [
 ]
 TEST_NOTE = ('Chrono : un ami au départ et à l’arrivée, ou une vidéo au ralenti. Prends toujours la même méthode et le même terrain, '
              'sinon les temps ne sont pas comparables.')
+
+def used():
+    u = set()
+    for d in DAYS:
+        for sl in d.get('slots', []) + (d.get('tech') or {}).get('slots', []):
+            u.update([sl['ex']] + sl['alts'])
+        for it in d.get('items', []):
+            if it['ex']: u.add(it['ex'])
+    return u
 
 REMOVED = [
     ('Élévations latérales (×2)', 'Exercice esthétique, sans transfert sur le terrain. Les épaules travaillent déjà avec les développés et le développé à genou.'),

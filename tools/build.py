@@ -54,7 +54,9 @@ def poses(slug):
 
 
 ex = {}
+USED = PG.used()
 for slug, e in PG.EX.items():
+    if slug not in USED: continue
     d = dict(e)
     draw = d.pop('drawing', slug)
     if slug in DIAGRAMS:
@@ -80,7 +82,7 @@ for day in PG.DAYS:
         dd['tech'] = dict(dd['tech']); dd['tech']['slots'] = fix(dd['tech']['slots'])
     days.append(dd)
 for d in days:
-    for sl in d.get('slots', []) + d.get('pre', []) + (d.get('tech') or {}).get('slots', []):
+    for sl in d.get('slots', []) + (d.get('tech') or {}).get('slots', []):
         for s in [sl['ex']] + sl['alts']: assert s in ex, s
     for it in d.get('items', []):
         assert not it['ex'] or it['ex'] in ex, it['ex']
@@ -118,9 +120,7 @@ for sl in ABS2: v2alts[sl['main']] = sl['alts']
 oldnames = {k: v['name'] for k, v in EX2.items() if k not in ex}
 oldneg = [k for k, v in EX2.items() if k not in ex and 'Contrepoids' in v.get('start', '')]
 
-DATA = dict(version=3, muscles=PG.MUSCLES, regions=regions(), ex=ex, days=days, warmup=PG.WARMUP, blocks=PG.BLOCKS, learn=PG.LEARN, deload=PG.DELOAD,
-            testWeeks=PG.TESTS, testDef=PG.TESTDEF, testNote=PG.TEST_NOTE, ready=PG.READY, kinds=PG.KINDS, foods=FOODS, meals=meals,
-            levels=[dict(xp=a, t=b, em=c) for a, b, c in LEVELS], badges=[dict(id=a, em=b, name=c, desc=d) for a, b, c, d in BADGES], weekGoal=6,
+DATA = dict(version=4, muscles=PG.MUSCLES, ex=ex, days=days, warmup=PG.WARMUP, learn=PG.LEARN, deload=PG.DELOAD, foods=FOODS, meals=meals,
             v2days={d['key']: d['name'] for d in DAYS2}, v2alts=v2alts, oldnames=oldnames, oldneg=oldneg,
             artifact='https://claude.ai/artifact/FFj7RQyJijK2JHKivdXzSZ')
 
