@@ -20,13 +20,36 @@ function prescText(sl, slug, pr) {
   const s = pr.sets > 1 ? `${pr.sets}&nbsp;×&nbsp;${esc(reps)}` : esc(reps);
   return s + (pr.rest ? ` · repos ${restTxt(pr.rest)}` : '');
 }
+const dayTag = k => k === 'dimanche' ? 'Match' : dayByKey(k).tag;
 function weekStrip() {
-  return `<nav class="week" aria-label="Jours de la semaine">${ORDER.map((k, i) => {
-    const d = dateOf(k), sel = k === selDay;
-    return `<button type="button" class="wd${sel ? ' sel' : ''}${d === TODAY() ? ' today' : ''}${dayDone(k) ? ' done' : ''}" data-day="${k}" aria-pressed="${sel}" aria-label="${nomJour(k)} ${fmtDate(d)}${dayDone(k) ? ', fait' : ''}"><small>${LETTRES[i]}</small><b>${D(d).getDate()}</b><i>${I.check}</i></button>`;
+  return `<nav class="week" aria-label="Jours de la semaine">${ORDER.map(k => {
+    const sel = k === selDay, done = dayDone(k);
+    return `<button type="button" class="wd${sel ? ' sel' : ''}${k === todayKey() ? ' today' : ''}" data-day="${k}" aria-pressed="${sel}" aria-label="${nomJour(k)} : ${esc(dayByKey(k).name)}${done ? ', fait' : ''}"><b>${nomJour(k).slice(0, 3)}</b><small>${esc(dayTag(k))}</small>${done ? `<i>${I.check}</i>` : ''}</button>`;
   }).join('')}</nav>`;
 }
-function overline(k) { const d = dateOf(k); return d === TODAY() ? 'Aujourd’hui' : `${nomJour(k)} ${fmtDate(d)}`; }
+const overline = k => k === todayKey() ? 'Aujourd’hui' : nomJour(k);
+
+/* ---------------- ouverture automatique : l'exercice à faire est déjà ouvert ---------------- */
+let autoFor = null;
+function rowOrder(k) {   // lignes à cocher qui ont une fiche, dans l'ordre
+  const day = dayByKey(k);
+  if (day.kind === 'gym' || day.kind === 'speed') return day.slots.map(s => s.id);
+  if (day.kind === 'recup') return day.items.map(it => it.id);
+  if (day.kind === 'sunday') return day.tech.slots.map(s => s.id);
+  return [];
+}
+function nextOpen(k, from) {
+  const ids = rowOrder(k), d = dateOf(k), i = ids.indexOf(from);
+  const rest = ids.slice(i + 1).concat(ids.slice(0, Math.max(0, i)));
+  return rest.find(id => !checked(d, id)) || null;
+}
+function autoOpen(k) {
+  if (autoFor === k) return;
+  autoFor = k;
+  const d = dateOf(k), ids = rowOrder(k);
+  if (k === 'dimanche' && !ids.some(id => checked(d, id))) { openId = null; return; }   // match ou technique : à lui de choisir
+  openId = ids.find(id => !checked(d, id)) || null;
+}
 
 /* ---------------- une ligne de la liste ---------------- */
 function rowHtml(k, r) {
@@ -50,7 +73,7 @@ function exDetail(k, sl, slug, pr) {
   if (e.err) h += `<p class="tip no">${I.no}<span>${esc(e.err)}</span></p>`;
   if (modeOf(sl, slug, repsFor(sl, slug, pr)) === 'load') {
     const cur = histOn(slug, d), last = lastBefore(slug, d);
-    const hint = last != null ? `La dernière fois : ${frn(last)}&nbsp;kg` : e.start ? `Pour commencer : ${esc(e.start)}` : '';
+    const hint = last != null ? `La dernière fois : ${frn(last)}&nbsp;kg` : e.start ? `Pour commencer : ${esc(e.neg ? e.start.replace(/^Contrepoids\s*/i, '') : e.start)}` : '';
     h += `<div class="wt"><label for="w-${sl.id}">${e.neg ? 'Contrepoids' : 'Poids'}</label><input id="w-${sl.id}" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" data-w="${slug}" value="${cur != null ? frn(cur) : ''}" placeholder="–"><span>kg</span>${hint ? `<small>${hint}</small>` : ''}</div>`;
   }
   h += '<div class="links">';
@@ -71,14 +94,17 @@ function slotRows(k, slots, info) {
 /* ---------------- SÉANCE ---------------- */
 function renderSeance() {
   const k = selDay, day = dayByKey(k), info = weekInfo(), d = dateOf(k);
+  autoOpen(k);
   let title = day.name, sub = [day.theme, day.dur].filter(Boolean).join(' · '), notes = [], body = '';
   if (day.kind === 'gym' || day.kind === 'speed') {
-    if (info.learn && day.kind === 'gym') notes.push('Semaines 1 et 2 : 2 séries seulement, le temps d’apprendre les gestes.');
-    if (info.deload) notes.push('Semaine plus légère : une série de moins partout.');
     if (day.note) notes.push(day.note);
     if (day.place) notes.push('Matériel : ' + day.place.charAt(0).toLowerCase() + day.place.slice(1) + '.');
     body = listHtml(k, [warmRow(day.warm)].concat(slotRows(k, day.slots, info)));
-    if (day.kind === 'gym') body += '<p class="foot">Toutes tes répétitions passent facilement ? Ajoute un peu de poids la fois suivante. Garde toujours 1 ou 2 répétitions en réserve.</p>';
+    const foot = [];
+    if (info.learn && day.kind === 'gym') foot.push('Semaines 1 et 2 : 2 séries seulement, le temps d’apprendre les gestes.');
+    if (info.deload) foot.push('Semaine plus légère : une série de moins partout.');
+    if (day.kind === 'gym') foot.push('Toutes tes répétitions passent facilement ? Ajoute un peu de poids la fois suivante. Garde toujours 1 ou 2 répétitions en réserve.');
+    body += foot.map(f => `<p class="foot">${esc(f)}</p>`).join('');
   } else if (day.kind === 'foot') {
     body = listHtml(k, [{ id: 'f1', name: 'Entraînement avec l’équipe', sub: esc(day.text) }]);
   } else if (day.kind === 'recup') {

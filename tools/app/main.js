@@ -6,8 +6,16 @@ function render() {
   document.querySelectorAll('.nav [data-tab]').forEach(b => b.setAttribute('aria-current', b.dataset.tab === tab ? 'page' : 'false'));
   ({ seance: renderSeance, repas: renderRepas, coach: renderCoach }[tab] || renderSeance)();
 }
-function go(t) { tab = t; openId = null; try { history.replaceState(null, '', '#' + t); } catch (e) {} render(); window.scrollTo(0, 0); }
+function go(t) { tab = t; try { history.replaceState(null, '', '#' + t); } catch (e) {} render(); window.scrollTo(0, 0); }
 function rerender() { const y = window.scrollY; render(); window.scrollTo(0, y); }
+function showOpen(always) {   // fait défiler jusqu'à l'exercice ouvert
+  const el = view.querySelector('.row.open'); if (!el) return;
+  const r = el.getBoundingClientRect();
+  if (always || r.top < 0 || r.top > window.innerHeight * .55) {
+    let smooth = true; try { smooth = !matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+    el.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
+  }
+}
 window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (TABS.includes(h) && h !== tab) { tab = h; render(); } });
 function applyTheme() {
   const dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -20,13 +28,19 @@ document.querySelector('.nav').addEventListener('click', e => { const b = e.targ
 view.addEventListener('click', e => {
   const t = e.target.closest('button'); if (!t) return;
   const d = t.dataset;
-  if (d.day) { if (d.day !== selDay) { selDay = d.day; openId = null; shopOpen = false; render(); } return; }
+  if (d.day) { if (d.day !== selDay) { selDay = d.day; autoFor = null; shopOpen = false; render(); } return; }
   if (d.ck) {
+    const d0 = dateOf(selDay), was = checked(d0, d.ck);
     const fin = toggleCheck(selDay, d.ck);
+    let next = false;
+    if (!was && rowOrder(selDay).includes(d.ck) && (openId === d.ck || openId === null)) { openId = nextOpen(selDay, d.ck); next = !!openId; }
     if (fin && navigator.vibrate) { try { navigator.vibrate(30); } catch (err) {} }
-    rerender(); return;
+    rerender();
+    if (next) showOpen(true);
+    else if (fin) { let smooth = true; try { smooth = !matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {} window.scrollTo({ top: 0, behavior: smooth ? 'smooth' : 'auto' }); }
+    return;
   }
-  if (d.open) { openId = openId === d.open ? null : d.open; rerender(); return; }
+  if (d.open) { openId = openId === d.open ? null : d.open; rerender(); if (openId) showOpen(false); return; }
   if (d.alt) { S.variant[d.alt] = +d.i; save(); rerender(); return; }
   if (d.shopopen) { shopOpen = !shopOpen; rerender(); return; }
   if (d.shop) { S.shop.checked[d.shop] = !S.shop.checked[d.shop]; save(); rerender(); return; }
@@ -51,7 +65,7 @@ view.addEventListener('keydown', e => {
 let lastToday = TODAY();
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) return;
-  if (TODAY() !== lastToday) { lastToday = TODAY(); selDay = todayKey(); openId = null; }
+  if (TODAY() !== lastToday) { lastToday = TODAY(); selDay = todayKey(); autoFor = null; }
   if (tab !== 'coach') rerender();
 });
 
