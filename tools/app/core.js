@@ -133,7 +133,7 @@ function dayIds(k) {
   const day = dayByKey(k);
   if (day.kind === 'foot') return ['f1'];
   if (day.kind === 'recup') return day.items.map(it => it.id);
-  if (day.kind === 'sunday') return day.tech.slots.map(s => s.id);
+  if (day.kind === 'sunday') return dayByKey('lundi').slots.map(s => s.id);
   return day.slots.map(s => s.id);
 }
 function dayDone(k) {

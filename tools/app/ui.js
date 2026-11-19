@@ -47,7 +47,7 @@ function dayStrip() {
 const LINES = '<svg class="lines" viewBox="0 0 390 300" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><path d="M318 -10V310"/><circle cx="318" cy="168" r="74"/><circle cx="318" cy="168" r="4.5" class="spot"/></svg>';
 const PLATE = '<svg class="lines" viewBox="0 0 390 300" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><circle cx="318" cy="168" r="74"/><circle cx="318" cy="168" r="61"/><circle cx="318" cy="168" r="17"/><circle cx="318" cy="168" r="6" class="spot"/><text x="318" y="131" class="plate-t">20</text><text x="318" y="222" class="plate-t sm">kg</text></svg>';
 const TERRAIN = ['mercredi', 'vendredi', 'dimanche'];
-const themeOf = k => TERRAIN.includes(k) ? 'terrain' : 'salle';
+const themeOf = k => k === 'dimanche' ? (S.match[weekKey()] === false ? 'salle' : 'terrain') : TERRAIN.includes(k) ? 'terrain' : 'salle';
 const band = (inner, days = true, th = 'terrain') => `<header class="band ${th}">${th === 'salle' ? PLATE : LINES}${days ? dayStrip() : ''}<div class="band-in">${inner}</div></header>`;
 
 /* ---------------- les fiches du jour (ce qu'on fait défiler) ---------------- */
@@ -59,7 +59,7 @@ function deckFor(k, which) {
   if (day.kind === 'recup') return day.items.map(it => it.ex
     ? { id: it.id, type: 'ex', sl: { id: it.id, ex: it.ex, alts: [], kind: 'recup' }, slug: it.ex, pr: { sets: 1, reps: '20 min', rest: 0 }, name: 'Vélo facile' }
     : { id: it.id, type: 'list', name: 'Étirements', sub: '10 min, sans forcer', list: it.list });
-  if (day.kind === 'sunday') return which === 'match' ? [{ id: 'm1', type: 'match' }] : fromSlots(day.tech.slots);
+  if (day.kind === 'sunday') return which === 'match' ? [{ id: 'm1', type: 'match' }] : fromSlots(dayByKey('lundi').slots);   // pas de match : salle, haut du corps
   return [];
 }
 const cardName = c => c.type === 'ex' ? (c.name || EXD[c.slug].name) : c.type === 'match' ? 'Match' : c.name;
@@ -105,14 +105,13 @@ function renderSeance() {
     body = `<section class="lineup text"><p>${esc(day.text)}</p></section>`;
   } else if (day.kind === 'sunday') {
     const m = S.match[weekKey()];
-    what = m === true ? 'Match' : m === false ? 'Entraînement technique' : 'Match ou technique';
-    meta = m === undefined ? 'Dis-moi vendredi si tu joues' : m ? 'Avant, échauffement, après' : day.tech.dur;
-    if (done) cta = `<p class="fini">${I.check}<span>${checked(d, 'm1') ? 'Match joué' : 'Technique faite'}. Bien joué&nbsp;!</span></p>`;
+    what = m === true ? 'Match' : m === false ? 'Haut du corps' : 'Match ou salle';
+    meta = m === undefined ? 'Dis-moi vendredi si tu joues' : m ? 'Avant, échauffement, après' : 'Salle, 45 min';
+    if (done) cta = `<p class="fini">${I.check}<span>${checked(d, 'm1') ? 'Match joué' : 'Séance terminée'}. Bien joué&nbsp;!</span></p>`;
     body = m === true ? lineupHtml(k, deckFor(k, 'match'), 'match')
-      : m === false ? lineupHtml(k, deckFor(k, 'tech'), 'tech', day.tech.warm)
-      : lineupHtml(k, deckFor(k, 'match'), 'match', null, 'Si tu joues') + lineupHtml(k, deckFor(k, 'tech'), 'tech', day.tech.warm, 'Sinon : entraînement technique');
+      : m === false ? lineupHtml(k, deckFor(k, 'tech'), 'tech', 'haut')
+      : lineupHtml(k, deckFor(k, 'match'), 'match', null, 'Si tu joues') + lineupHtml(k, deckFor(k, 'tech'), 'tech', 'haut', 'Sinon : salle, haut du corps');
     body += `<button type="button" class="lnk center" data-match="${m === undefined ? '1' : m ? '0' : '1'}"><span>${m === undefined ? 'Je joue dimanche' : m ? 'Finalement je ne joue pas' : 'Finalement je joue'}</span></button>`;
-    foot.push('Matériel pour la technique : ' + day.tech.place.charAt(0).toLowerCase() + day.tech.place.slice(1) + '.');
   }
   const wk = weekKey(), ans = S.match[wk];
   const ask = ['vendredi', 'samedi', 'dimanche'].includes(k) && ['vendredi', 'samedi', 'dimanche'].includes(todayKey()) && ans === undefined
