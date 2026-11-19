@@ -1,10 +1,16 @@
-# Mon programme muscu
+# Numéro 10 · prépa foot
 
-App web (iPhone) : séances avec alternatives et dessins, muscles travaillés, suivi des charges et du poids, repas, courses et coach IA.
+App web (iPhone) de préparation physique d'un milieu offensif de foot à 7 : tableau de bord, mode séance exercice par exercice, check forme qui adapte la séance, XP, niveaux et badges, tests de vitesse, repas et courses, coach IA.
 
-- `public/` : le site publié par Netlify (`index.html`, icônes, mode hors ligne `sw.js`).
+- `public/` : le site publié par Netlify (`index.html`, polices dans `fonts/`, icônes, mode hors ligne `sw.js`).
 - `netlify/edge-functions/coach.js` : relaie les questions du coach vers l'API Claude.
-- `tools/` : programmes Python qui génèrent `public/index.html` (dessins, exercices, repas). Après une modification : `python3 tools/build.py`.
+- `tools/` : génère `public/index.html`. Après une modification : `python3 tools/build.py`.
+  - `program.py` : exercices, semaine type, cycle de 12 semaines (blocs, semaines allégées, tests), check forme.
+  - `plan.py` + `foods.py` : repas par type de journée, calories et protéines.
+  - `ex2.py`, `ex3.py` (dessins des exercices), `drills.py` (schémas terrain vus de dessus), `musclemap.py`.
+  - `app/` : l'interface (`style.css`, `shell.html`, `core.js`, `ui.js`, `workout.js`, `coach.js`, `main.js`).
+
+Les données restent sur le téléphone (clé `n10-v3`). Les données de l'ancienne version (`muscu-app-v2`) sont reprises automatiquement au premier lancement.
 
 ## Activer le coach sur Netlify
 
@@ -13,7 +19,9 @@ Dans Netlify → Project configuration → Environment variables, ajouter :
 | Variable | Valeur |
 | --- | --- |
 | `ANTHROPIC_API_KEY` | ta clé API Claude (console Claude) |
-| `COACH_CODE` | un code de ton choix, à saisir dans l'app (Suivi → Réglages) |
+| `COACH_CODE` | un code de ton choix, à saisir dans l'app (Accueil → roue crantée → Code du coach) |
 | `COACH_MODEL` | facultatif, `claude-haiku-5-5` par défaut |
 
 Puis Deploys → Trigger deploy.
+
+Polices : Big Shoulders Display, Barlow et Barlow Condensed (SIL Open Font License), servies depuis `public/fonts/`.
