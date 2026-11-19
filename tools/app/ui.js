@@ -45,7 +45,10 @@ function dayStrip() {
   }).join('')}</nav>`;
 }
 const LINES = '<svg class="lines" viewBox="0 0 390 300" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><path d="M318 -10V310"/><circle cx="318" cy="168" r="74"/><circle cx="318" cy="168" r="4.5" class="spot"/></svg>';
-const band = (inner, days = true) => `<header class="band">${LINES}${days ? dayStrip() : ''}<div class="band-in">${inner}</div></header>`;
+const PLATE = '<svg class="lines" viewBox="0 0 390 300" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><circle cx="318" cy="168" r="74"/><circle cx="318" cy="168" r="61"/><circle cx="318" cy="168" r="17"/><circle cx="318" cy="168" r="6" class="spot"/><text x="318" y="131" class="plate-t">20</text><text x="318" y="222" class="plate-t sm">kg</text></svg>';
+const TERRAIN = ['mercredi', 'vendredi', 'dimanche'];
+const themeOf = k => TERRAIN.includes(k) ? 'terrain' : 'salle';
+const band = (inner, days = true, th = 'terrain') => `<header class="band ${th}">${th === 'salle' ? PLATE : LINES}${days ? dayStrip() : ''}<div class="band-in">${inner}</div></header>`;
 
 /* ---------------- les fiches du jour (ce qu'on fait défiler) ---------------- */
 function deckFor(k, which) {
@@ -72,8 +75,11 @@ function lineupHtml(k, deck, which, warmKey, title) {
   h += '<ol class="xs">' + deck.map((c, i) => {
     const on = checked(d, c.id);
     const sub = c.type === 'ex' ? (c.sl.kind === 'recup' ? '20 min, sans forcer' : prescLine(c.sl, c.slug, c.pr)) : c.type === 'list' ? esc(c.sub) : 'Avant, échauffement, après';
-    return `<li class="x${on ? ' on' : ''}"><button type="button" class="row" data-deck="${which}" data-i="${i}"><span class="num${c.type === 'match' ? ' ic' : ''}">${c.type === 'match' ? I.whistle : i + 1}</span><span class="tx"><b>${esc(cardName(c))}</b><small>${sub}</small></span></button>`
-      + `<button type="button" class="tick" data-ck="${c.id}" aria-pressed="${on}" aria-label="${esc(cardName(c))} : fait">${I.check}</button></li>`;
+    const voir = c.type === 'ex' ? 'Voir l’exécution' : c.type === 'list' ? 'Voir les étirements' : 'Voir le déroulé';
+    return `<li class="x${on ? ' on' : ''}"><span class="num${c.type === 'match' ? ' ic' : ''}">${on ? I.check : c.type === 'match' ? I.whistle : i + 1}</span>`
+      + `<button type="button" class="tx" data-deck="${which}" data-i="${i}"><b>${esc(cardName(c))}</b><small>${sub}</small></button>`
+      + `<button type="button" class="tick" data-ck="${c.id}" aria-pressed="${on}" aria-label="${esc(cardName(c))} : fait">${I.check}<small>Fait</small></button>`
+      + `<button type="button" class="voir" data-deck="${which}" data-i="${i}">${I.play}<span>${voir}</span></button></li>`;
   }).join('') + '</ol>';
   return h + '</section>';
 }
@@ -104,7 +110,7 @@ function renderSeance() {
     body = lineupHtml(k, deckFor(k, 'match'), 'match', null, 'J’ai match') + lineupHtml(k, deckFor(k, 'tech'), 'tech', day.tech.warm, 'Pas de match : séance technique');
     foot.push('Matériel pour la technique : ' + day.tech.place.charAt(0).toLowerCase() + day.tech.place.slice(1) + '.');
   }
-  view.innerHTML = band(`${today ? '<p class="when">Aujourd’hui</p>' : ''}<h1 class="xd">${nomJour(k)}</h1><p class="what">${esc(what)}</p>${meta ? `<p class="meta">${esc(meta)}</p>` : ''}${cta}`)
+  view.innerHTML = band(`${today ? '<p class="when">Aujourd’hui</p>' : ''}<h1 class="xd">${nomJour(k)}</h1><p class="what">${esc(what)}</p>${meta ? `<p class="meta">${esc(meta)}</p>` : ''}${cta}`, true, themeOf(k))
     + `<div class="page">${body}${foot.map(f => `<p class="foot">${esc(f)}</p>`).join('')}</div>`;
 }
 
@@ -134,7 +140,6 @@ function cardHtml(c, d) {
     h += `<div class="wt"><label for="w-${sl.id}">${e.neg ? 'Contrepoids' : 'Poids'}</label><input id="w-${sl.id}" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" data-w="${c.slug}" value="${cur != null ? frn(cur) : ''}" placeholder="–"><span>kg</span>${hint ? `<small>${hint}</small>` : ''}</div>`;
   }
   h += '<div class="links">';
-  if (e.eq !== 'velo') h += `<a class="lnk" href="${ytUrl(sl, e)}" target="_blank" rel="noopener">${I.play}<span>Voir en vidéo</span></a>`;
   opts.forEach((o, j) => { if (o !== c.slug) h += `<button type="button" class="lnk" data-alt="${sl.id}" data-j="${j}">${I.swap}<span>${o === sl.ex ? 'Revenir à' : 'Pas dispo ? Fais plutôt'} : ${esc(EXD[o].name)}</span></button>`; });
   return h + '</div></article>';
 }
@@ -175,6 +180,7 @@ const smooth = () => { try { return !matchMedia('(prefers-reduced-motion: reduce
 function goCard(i) { const tr = document.getElementById('track'); if (tr) tr.scrollTo({ left: i * tr.clientWidth, behavior: smooth() ? 'smooth' : 'auto' }); }
 function openSheet(which, i) {
   SH = { k: selDay, which, i };
+  sheetEl().dataset.th = themeOf(selDay);
   document.body.classList.add('sheet-on');
   sheetEl().setAttribute('aria-hidden', 'false');
   sheetEl().classList.add('on');
@@ -199,7 +205,7 @@ function qtyLabel(f, q) {
 }
 function renderRepas() {
   const dn = nomJour(selDay), r = mealsFor(dn);
-  view.innerHTML = band(`${selDay === todayKey() ? '<p class="when">Aujourd’hui</p>' : ''}<h1 class="xd">${dn}</h1><p class="what">Repas</p><p class="meta">Environ ${fr0(r.md.target)}&nbsp;kcal</p>`)
+  view.innerHTML = band(`${selDay === todayKey() ? '<p class="when">Aujourd’hui</p>' : ''}<h1 class="xd">${dn}</h1><p class="what">Repas</p><p class="meta">Environ ${fr0(r.md.target)}&nbsp;kcal</p>`, true, themeOf(selDay))
     + `<div class="page"><section class="lineup meals">${r.meals.map(m => `<div class="meal"><h2>${esc(m.name)}</h2>${m.title ? `<p class="dish">${esc(m.title)}</p>` : ''}<ul>${Object.keys(m.items).map(f => `<li>${qtyLabel(f, m.items[f])}</li>`).join('')}</ul></div>`).join('')}</section>
     ${dn === 'Samedi' || dn === 'Dimanche' ? '<p class="foot">Match le lendemain : ajoute 40&nbsp;g de pâtes au dîner. Jour de match : repas 3&nbsp;h avant.</p>' : ''}
     <p class="foot">Poulet, pâtes et riz pesés crus. Une seule whey par jour.</p>
