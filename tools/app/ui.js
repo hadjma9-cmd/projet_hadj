@@ -104,13 +104,20 @@ function renderSeance() {
       : `<button type="button" class="cta" data-ck="f1">C’est fait</button>`;
     body = `<section class="lineup text"><p>${esc(day.text)}</p></section>`;
   } else if (day.kind === 'sunday') {
-    what = 'Match ou technique';
-    meta = 'Choisis selon ton dimanche';
+    const m = S.match[weekKey()];
+    what = m === true ? 'Match' : m === false ? 'Entraînement technique' : 'Match ou technique';
+    meta = m === undefined ? 'Dis-moi vendredi si tu joues' : m ? 'Avant, échauffement, après' : day.tech.dur;
     if (done) cta = `<p class="fini">${I.check}<span>${checked(d, 'm1') ? 'Match joué' : 'Technique faite'}. Bien joué&nbsp;!</span></p>`;
-    body = lineupHtml(k, deckFor(k, 'match'), 'match', null, 'J’ai match') + lineupHtml(k, deckFor(k, 'tech'), 'tech', day.tech.warm, 'Pas de match : séance technique');
+    body = m === true ? lineupHtml(k, deckFor(k, 'match'), 'match')
+      : m === false ? lineupHtml(k, deckFor(k, 'tech'), 'tech', day.tech.warm)
+      : lineupHtml(k, deckFor(k, 'match'), 'match', null, 'Si tu joues') + lineupHtml(k, deckFor(k, 'tech'), 'tech', day.tech.warm, 'Sinon : entraînement technique');
+    body += `<button type="button" class="lnk center" data-match="${m === undefined ? '1' : m ? '0' : '1'}"><span>${m === undefined ? 'Je joue dimanche' : m ? 'Finalement je ne joue pas' : 'Finalement je joue'}</span></button>`;
     foot.push('Matériel pour la technique : ' + day.tech.place.charAt(0).toLowerCase() + day.tech.place.slice(1) + '.');
   }
-  view.innerHTML = band(`${today ? '<p class="when">Aujourd’hui</p>' : ''}<h1 class="xd">${nomJour(k)}</h1><p class="what">${esc(what)}</p>${meta ? `<p class="meta">${esc(meta)}</p>` : ''}${cta}`, true, themeOf(k))
+  const wk = weekKey(), ans = S.match[wk];
+  const ask = ['vendredi', 'samedi', 'dimanche'].includes(k) && ['vendredi', 'samedi', 'dimanche'].includes(todayKey()) && ans === undefined
+    ? `<div class="ask"><p>Tu joues un match dimanche ?</p><div><button type="button" data-match="1">Oui</button><button type="button" data-match="0">Non</button></div></div>` : '';
+  view.innerHTML = band(`${today ? '<p class="when">Aujourd’hui</p>' : ''}<h1 class="xd">${nomJour(k)}</h1><p class="what">${esc(what)}</p>${meta ? `<p class="meta">${esc(meta)}</p>` : ''}${cta}${ask}`, true, themeOf(k))
     + `<div class="page">${body}${foot.map(f => `<p class="foot">${esc(f)}</p>`).join('')}</div>`;
 }
 

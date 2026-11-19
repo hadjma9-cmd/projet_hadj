@@ -29,6 +29,7 @@ view.addEventListener('click', e => {
     openSheet(d.start, Math.max(0, i)); return;
   }
   if (d.deck) { openSheet(d.deck, +d.i); return; }
+  if (d.match) { S.match[weekKey()] = d.match === '1'; save(); rerender(); return; }
   if (d.warm) { warmOpen = !warmOpen; rerender(); return; }
   if (d.shopopen) { shopOpen = !shopOpen; rerender(); return; }
   if (d.shop) { S.shop.checked[d.shop] = !S.shop.checked[d.shop]; save(); rerender(); return; }

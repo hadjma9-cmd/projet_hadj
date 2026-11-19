@@ -214,3 +214,7 @@ svg{display:block}
 .nav svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .nav [aria-current=page]{color:var(--num)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+.ask{margin-top:18px;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.14)}
+.ask p{font-size:17px;font-weight:650}
+.ask div{display:flex;gap:10px;margin-top:10px}
+.ask button{flex:1;text-align:center;height:46px;border-radius:12px;background:var(--chalk);color:var(--th-ink);font-size:17px;font-weight:750}
