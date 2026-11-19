@@ -27,7 +27,12 @@ const BLANK = () => ({ v: 3, start: null, name: '', variant: {}, weights: {}, hi
   coach: { code: '', msgs: [] }, set: { beep: true, wake: true, theme: 'auto' }, migrated: null });
 let S = BLANK();
 const DAYS = DATA.days, EXD = DATA.ex;
-const dayByKey = k => DAYS.find(d => d.key === k);
+const playedLastSunday = () => S.match[addDays(weekKey(), -7)] === true;
+const dayByKey = k => {   // semaine avec match : le lundi devient haut du corps (les jambes ont assez donné)
+  const d = DAYS.find(x => x.key === k);
+  if (k === 'lundi' && playedLastSunday()) return Object.assign({}, DAYS.find(x => x.key === 'samedi'), { key: 'lundi', name: 'Haut du corps', tag: 'Haut', note: 'Tu as joué hier : pas de jambes cette semaine, haut du corps à la place.' });
+  return d;
+};
 const todayKey = () => KEYS[new Date().getDay()];
 function slotOptions(sl) { return [sl.ex].concat(sl.alts || []); }
 function slotSlug(sl) { const o = slotOptions(sl); return o[Math.min(S.variant[sl.id] || 0, o.length - 1)]; }
@@ -133,7 +138,7 @@ function dayIds(k) {
   const day = dayByKey(k);
   if (day.kind === 'foot') return ['f1'];
   if (day.kind === 'recup') return day.items.map(it => it.id);
-  if (day.kind === 'sunday') return (S.match[weekKey()] ? ['m1'] : []).concat(dayByKey('mardi').slots.map(s => s.id));
+  if (day.kind === 'sunday') return S.match[weekKey()] ? ['m1'] : dayByKey('mardi').slots.map(s => s.id);
   if (day.kind === 'rest') return [];
   return day.slots.map(s => s.id);
 }
